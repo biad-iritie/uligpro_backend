@@ -1,0 +1,64 @@
+import { Resolver, Query, Mutation, Args, Int, Context } from '@nestjs/graphql';
+import { UsersService } from './users.service';
+import { User } from './entities/user.entity';
+import { ActivationDto, CreateRegularUserInput } from './dto/create-user.input';
+import { UpdateUserInput } from './dto/update-user.input';
+import { ActivationResponse, RegisterResponse } from './types/user.type';
+import { BadRequestException } from '@nestjs/common';
+import { Response } from 'express';
+
+@Resolver(() => User)
+export class UsersResolver {
+  constructor(private readonly usersService: UsersService) {}
+
+  @Mutation(() => RegisterResponse)
+  async registerRegularUser(
+    @Args('UserInput')
+    createRegularUserInput: CreateRegularUserInput,
+    @Context()
+    context: { res: Response },
+  ): Promise<RegisterResponse> {
+    if (
+      !createRegularUserInput.name ||
+      !createRegularUserInput.email ||
+      !createRegularUserInput.password ||
+      !createRegularUserInput.tel
+    ) {
+      throw new BadRequestException('Remplis tous les champs, SVP');
+    }
+    const { activationToken } = await this.usersService.createRegularUser(
+      createRegularUserInput,
+      context.res,
+    );
+
+    return { activationToken };
+  }
+
+  @Mutation(() => ActivationResponse)
+  async activateUser(
+    @Args('activationInput') activationDto: ActivationDto,
+    @Context() context: { res: Response },
+  ): Promise<ActivationResponse> {
+    return await this.usersService.activateUser(activationDto, context.res);
+  }
+
+  @Query(() => [User], { name: 'users' })
+  findAll() {
+    return this.usersService.findAll();
+  }
+
+  @Query(() => User, { name: 'user' })
+  findOne(@Args('id', { type: () => Int }) id: number) {
+    return this.usersService.findOne(id);
+  }
+
+  /* @Mutation(() => User)
+  updateUser(@Args('updateUserInput') updateUserInput: UpdateUserInput) {
+    return this.usersService.update(updateUserInput.id, updateUserInput);
+  }
+
+  @Mutation(() => User)
+  removeUser(@Args('id', { type: () => Int }) id: number) {
+    return this.usersService.remove(id);
+  } */
+}
