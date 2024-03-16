@@ -1,5 +1,9 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { ActivationDto, CreateRegularUserInput } from './dto/create-user.input';
+import {
+  ActivationDto,
+  CreateRegularUserInput,
+  LoginDto,
+} from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
 import { Response } from 'express';
 import { PrismaService } from '../../../prisma/prisma.service';
@@ -7,6 +11,7 @@ import * as bcrypt from 'bcrypt';
 import { JwtService, JwtVerifyOptions } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { EmailService } from './email/email.service';
+import { sendToken } from './utlis/sendToken';
 
 interface userData {
   name: string;
@@ -68,10 +73,10 @@ export class UsersService {
       where: {
         OR: [
           {
-            email: email,
+            email,
           },
           {
-            tel: tel,
+            tel,
           },
         ],
       },
@@ -124,6 +129,37 @@ export class UsersService {
     return { user, response };
   }
 
+  async login(loginDto: LoginDto) {
+    const { email, password } = loginDto;
+
+    const user = await this.prisma.user.findUnique({
+      where: {
+        email,
+      },
+      include: {
+        role: true,
+      },
+    });
+    if (user && (await this.comparePassword(password, user.password))) {
+      const tokenSender = new sendToken(this.configService, this.jwtService);
+      console.log(user);
+
+      return tokenSender.sendToken(user);
+    } else {
+      return {
+        user: null,
+        accessToken: null,
+        refreshToken: null,
+        error: { message: 'Email ou mot de passe invalide' },
+      };
+    }
+  }
+  async comparePassword(
+    password: string,
+    hashedPassword: string,
+  ): Promise<boolean> {
+    return await bcrypt.compare(password, hashedPassword);
+  }
   findAll() {
     return this.prisma.user.findMany({});
   }

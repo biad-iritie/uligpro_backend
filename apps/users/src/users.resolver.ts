@@ -3,7 +3,11 @@ import { UsersService } from './users.service';
 import { User } from './entities/user.entity';
 import { ActivationDto, CreateRegularUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
-import { ActivationResponse, RegisterResponse } from './types/user.type';
+import {
+  ActivationResponse,
+  LoginResponse,
+  RegisterResponse,
+} from './types/user.type';
 import { BadRequestException } from '@nestjs/common';
 import { Response } from 'express';
 
@@ -40,6 +44,14 @@ export class UsersResolver {
     @Context() context: { res: Response },
   ): Promise<ActivationResponse> {
     return await this.usersService.activateUser(activationDto, context.res);
+  }
+
+  @Mutation(() => LoginResponse)
+  async login(
+    @Args('email') email: string,
+    @Args('password') password: string,
+  ): Promise<LoginResponse> {
+    return await this.usersService.login({ email, password });
   }
 
   @Query(() => [User], { name: 'users' })
