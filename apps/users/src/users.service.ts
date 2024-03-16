@@ -142,7 +142,7 @@ export class UsersService {
     });
     if (user && (await this.comparePassword(password, user.password))) {
       const tokenSender = new sendToken(this.configService, this.jwtService);
-      console.log(user);
+      //console.log(user);
 
       return tokenSender.sendToken(user);
     } else {
@@ -160,6 +160,14 @@ export class UsersService {
   ): Promise<boolean> {
     return await bcrypt.compare(password, hashedPassword);
   }
+  //GET LOGGED IN USER
+  async getLoggedInUser(req: any) {
+    const user = req.user;
+    const accessToken = req.accessToken;
+    const refreshToken = req.refreshToken;
+    return { user, accessToken, refreshToken };
+  }
+
   findAll() {
     return this.prisma.user.findMany({});
   }

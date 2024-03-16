@@ -23,7 +23,7 @@ export class sendToken {
         id: user.id,
       },
       {
-        secret: this.config.get<string>('REFRESH_TOKEN_EXPIRE'),
+        secret: this.config.get<string>('REFRESH_TOKEN_SECRET'),
         expiresIn: '3d',
       },
     );
