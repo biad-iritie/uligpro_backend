@@ -10,16 +10,17 @@ export class CreateRegularUserInput {
 
   @Field()
   @IsNotEmpty({ message: 'Email is required.' })
-  @IsEmail({}, { message: 'Email is invalid.' })
+  @IsEmail({}, { message: 'Email est invalide.' })
   email: string;
 
   @Field()
   @IsNotEmpty({ message: 'Password is required.' })
-  @MinLength(8, { message: 'Password must be at least 8 characters.' })
+  @MinLength(8, { message: 'Mot de passe doit être au moins 8 charactères.' })
   password: string;
 
   @Field()
   @IsNotEmpty({ message: 'Phone Number is required.' })
+  @MinLength(10, { message: 'Le numero doit être au moins 10 chiffre.' })
   tel: string;
 
   @Field()

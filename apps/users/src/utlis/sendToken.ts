@@ -15,6 +15,7 @@ export class sendToken {
       },
       {
         secret: this.config.get<string>('ACCESS_TOKEN_SECRET'),
+        expiresIn: this.config.get<string>('DURATION_ACCESS_TOKEN'),
       },
     );
 
@@ -24,7 +25,7 @@ export class sendToken {
       },
       {
         secret: this.config.get<string>('REFRESH_TOKEN_SECRET'),
-        expiresIn: '3d',
+        expiresIn: this.config.get<string>('DURATION_REFRESH_TOKEN'),
       },
     );
     return { user, accessToken, refreshToken };

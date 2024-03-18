@@ -31,3 +31,68 @@ model User {
   roleId    Int
   role      Role     @relation(fields: [roleId], references: [id])
 }
+
+model Venue {
+  id      Int     @id @default(autoincrement()) @map("_id")
+  name    String  @unique
+  address String
+  Event   Event[]
+}
+
+model Event {
+  id        Int      @id @default(autoincrement()) @map("_id")
+  name      String
+  date      DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  evenueId  Int
+  venue     Venue    @relation(fields: [evenueId], references: [id])
+
+  Ticket_categoryOnEvent Ticket_categoryOnEvent[]
+  Match                  Match[]
+}
+
+model Ticket_category {
+  id                     Int                      @id @default(autoincrement()) @map("_id")
+  name                   String                   @unique
+  Ticket_categoryOnEvent Ticket_categoryOnEvent[]
+}
+
+model Ticket_categoryOnEvent {
+  event             Event           @relation(fields: [eventId], references: [id])
+  eventId           Int
+  ticket_categoryId Int
+  ticket_category   Ticket_category @relation(fields: [ticket_categoryId], references: [id])
+  price             Int
+  capacity          Int
+  ticket_sold       Int             @default(0)
+
+  @@id([eventId, ticket_categoryId])
+}
+
+model Team {
+  id         Int     @id @default(autoincrement()) @map("_id")
+  name       String
+  logo       String
+  university String
+  matchHome  Match[] @relation("team home")
+  matchAway  Match[] @relation("team away")
+  match      Match[]
+}
+
+model Match {
+  time         DateTime
+  team1Id      Int
+  team1        Team     @relation("team home", fields: [team1Id], references: [id])
+  team2Id      Int
+  team2        Team     @relation("team away", fields: [team2Id], references: [id])
+  goal1        Int
+  goal2        Int
+  winner       Int
+  teamWinner   Team?    @relation(fields: [teamIdWinner], references: [id])
+  teamIdWinner Int?
+  eventId      Int
+  event        Event    @relation(fields: [eventId], references: [id])
+
+  @@id([team1Id, team2Id, eventId])
+}

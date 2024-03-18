@@ -5,6 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { Reflector } from '@nestjs/core';
 import { GqlContextType, GqlExecutionContext } from '@nestjs/graphql';
 import { JwtService, JwtVerifyOptions } from '@nestjs/jwt';
 import { PrismaService } from '../../../../prisma/prisma.service';
@@ -15,6 +16,7 @@ export class AuthGuard implements CanActivate {
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly config: ConfigService,
+    private readonly reflector: Reflector,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -59,14 +61,14 @@ export class AuthGuard implements CanActivate {
         { id: user.id },
         {
           secret: this.config.get<string>('ACCESS_TOKEN_SECRET'),
-          expiresIn: '15m',
+          expiresIn: this.config.get<string>('DURATION_ACCESS_TOKEN'),
         },
       );
       const refreshToken = this.jwtService.sign(
         { id: user.id },
         {
           secret: this.config.get<string>('REFRESH_TOKEN_SECRET'),
-          expiresIn: '7d',
+          expiresIn: this.config.get<string>('DURATION_REFRESH_TOKEN'),
         },
       );
       req.accessToken = accessToken;

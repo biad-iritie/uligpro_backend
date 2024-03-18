@@ -94,7 +94,7 @@ export class UsersService {
       },
       {
         secret: this.configService.get<string>('JWT_SECRET'),
-        expiresIn: '60m',
+        expiresIn: this.configService.get<string>('DURATION_JWT_SECRET'),
       },
     );
 
@@ -153,6 +153,14 @@ export class UsersService {
         error: { message: 'Email ou mot de passe invalide' },
       };
     }
+  }
+
+  async logout(req: any) {
+    req.user = null;
+    req.refreshToken = null;
+    req.accessToken = null;
+
+    return { message: 'Logout successfully!' };
   }
   async comparePassword(
     password: string,

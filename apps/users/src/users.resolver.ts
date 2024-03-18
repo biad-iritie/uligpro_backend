@@ -6,6 +6,7 @@ import { UpdateUserInput } from './dto/update-user.input';
 import {
   ActivationResponse,
   LoginResponse,
+  LogoutResponse,
   RegisterResponse,
 } from './types/user.type';
 import { BadRequestException, UseGuards } from '@nestjs/common';
@@ -61,6 +62,12 @@ export class UsersResolver {
     @Context() context: { req: Request },
   ): Promise<LoginResponse> {
     return await this.usersService.getLoggedInUser(context.req);
+  }
+
+  @Query(() => LogoutResponse)
+  @UseGuards(AuthGuard)
+  async logout(@Context() context: { req: Request }): Promise<LogoutResponse> {
+    return await this.usersService.logout(context.req);
   }
 
   @Query(() => [User], { name: 'users' })
