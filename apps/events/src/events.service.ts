@@ -30,11 +30,6 @@ export class EventsService {
               team2: true,
             },
           },
-          ticket_categoryOnEvent: {
-            include: {
-              ticket_category: true,
-            },
-          },
         },
       });
       return { events };
@@ -43,8 +38,47 @@ export class EventsService {
     }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} event`;
+  async findOne(id: number) {
+    try {
+      /* const event = await this.prisma.event.findUnique({
+        relationLoadStrategy: 'join',
+        where: {
+          id,
+          ticket_categoryOnEvent: {
+            tick,
+          },
+        },
+        include: {
+          venue: true,
+          //ticket_categoryOnEvent: true,
+          ticket_categoryOnEvent: {
+            include: {
+              // we should if there's remaining ticke
+              ticket_category: true,
+            },
+          },
+        },
+      }); */
+      const tickets = this.prisma.ticket_categoryOnEvent.findMany({
+        relationLoadStrategy: 'join',
+        where: {
+          AND: [
+            { eventId: id },
+            {
+              capacity: {
+                gt: this.prisma.ticket_categoryOnEvent.fields.ticket_sold,
+              },
+            },
+          ],
+        },
+        include: {
+          ticket_category: true,
+        },
+      });
+      return { tickets };
+    } catch (error) {
+      return { error: { message: 'Error to fetch the detail' } };
+    }
   }
 
   update(id: number, updateEventInput: UpdateEventInput) {

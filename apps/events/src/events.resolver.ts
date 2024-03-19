@@ -3,7 +3,7 @@ import { UpdateEventInput } from './dto/update-event.input';
 import { Event } from './entities/event.entity';
 
 import { EventsService } from './events.service';
-import { FindAllResponse } from './types/event.type';
+import { EventDetailsResponse, FindAllResponse } from './types/event.type';
 
 @Resolver(() => Event)
 export class EventsResolver {
@@ -17,6 +17,13 @@ export class EventsResolver {
   @Query(() => FindAllResponse, { name: 'getComingEvents' })
   async findAll(): Promise<FindAllResponse> {
     return await this.eventsService.findAll();
+  }
+
+  @Query(() => EventDetailsResponse, { name: 'getEventDetail' })
+  async findEventDetail(
+    @Args('id', { type: () => Int }) id: number,
+  ): Promise<EventDetailsResponse> {
+    return await this.eventsService.findOne(id);
   }
 
   @Query(() => Event, { name: 'event' })
