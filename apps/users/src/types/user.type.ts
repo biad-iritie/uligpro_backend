@@ -26,7 +26,7 @@ export class RegisterResponse {
 export class ActivationResponse {
   /* @Field()
   activation_token: string; */
-  @Field(() => User)
+  @Field(() => User, { nullable: true })
   user?: User | any;
 
   @Field(() => ErrorType, { nullable: true })

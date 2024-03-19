@@ -1,24 +1,24 @@
 import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
-import { EventsService } from './events.service';
 import { Event } from './entities/event.entity';
-import { CreateEventInput } from './dto/create-event.input';
-import { UpdateEventInput } from './dto/update-event.input';
+
+import { EventsService } from './events.service';
+import { FindAllResponse } from './types/event.type';
 
 @Resolver(() => Event)
 export class EventsResolver {
   constructor(private readonly eventsService: EventsService) {}
 
-  @Mutation(() => Event)
+  /*   @Mutation(() => Event)
   createEvent(@Args('createEventInput') createEventInput: CreateEventInput) {
     return this.eventsService.create(createEventInput);
+  } */
+
+  @Query(() => FindAllResponse, { name: 'getComingEvents' })
+  async findAll(): Promise<FindAllResponse> {
+    return await this.eventsService.findAll();
   }
 
-  @Query(() => [Event], { name: 'events' })
-  findAll() {
-    return this.eventsService.findAll();
-  }
-
-  @Query(() => Event, { name: 'event' })
+  /*   @Query(() => Event, { name: 'event' })
   findOne(@Args('id', { type: () => Int }) id: number) {
     return this.eventsService.findOne(id);
   }
@@ -31,5 +31,5 @@ export class EventsResolver {
   @Mutation(() => Event)
   removeEvent(@Args('id', { type: () => Int }) id: number) {
     return this.eventsService.remove(id);
-  }
+  } */
 }

@@ -1,5 +1,6 @@
 import { Directive, Field, ID, ObjectType } from '@nestjs/graphql';
 import { Ticket_category } from './ticket_category';
+import { Event } from './event.entity';
 
 @ObjectType()
 @Directive('@key(fields:"eventId,ticket_categoryId")')

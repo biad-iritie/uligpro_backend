@@ -1,4 +1,6 @@
-import { ObjectType, Field, Int, ID, Directive } from '@nestjs/graphql';
+import { ObjectType, Field, ID, Directive } from '@nestjs/graphql';
+import { Match } from './match.entity';
+import { Ticket_categoryOnEvent } from './ticket_categoryOnEvent';
 import { Venue } from './venue.entity';
 
 @ObjectType()
@@ -25,9 +27,9 @@ export class Event {
   @Field(() => Venue)
   venue?: Venue;
 
-  @Field(() => Ticket_categoryOnEvent)
-  Ticket_categoryOnEvent: Ticket_categoryOnEvent[];
+  @Field(() => [Ticket_categoryOnEvent])
+  ticket_categoryOnEvent?: Ticket_categoryOnEvent[];
 
-  @Field(() => Match)
-  Match: Match[];
+  @Field(() => [Match])
+  match?: Match[];
 }

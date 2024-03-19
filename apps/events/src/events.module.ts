@@ -1,12 +1,15 @@
 import { Module } from '@nestjs/common';
-import { EventsController } from './events.controller';
 import { EventsService } from './events.service';
+import { EventsResolver } from './events.resolver';
+
 import { GraphQLModule } from '@nestjs/graphql';
 import {
   ApolloFederationDriver,
   ApolloFederationDriverConfig,
 } from '@nestjs/apollo';
-import { EventsModule } from './events/events.module';
+import { PrismaModule } from '../../../prisma/prisma.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { PrismaService } from '../../../prisma/prisma.service';
 
 @Module({
   imports: [
@@ -16,9 +19,8 @@ import { EventsModule } from './events/events.module';
         federation: 2,
       },
     }),
-    EventsModule,
+    PrismaModule,
   ],
-  controllers: [EventsController],
-  providers: [EventsService],
+  providers: [EventsResolver, EventsService, PrismaService],
 })
 export class EventsModule {}

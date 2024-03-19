@@ -1,5 +1,5 @@
 import { Directive, Field, ID, ObjectType } from '@nestjs/graphql';
-
+import { Event } from './event.entity';
 @ObjectType()
 @Directive('@key(fields:"id")')
 export class Venue {
@@ -12,6 +12,6 @@ export class Venue {
   @Field()
   address: string;
 
-  @Field(() => [Event], { nullable: true })
+  @Field(() => [Event])
   event?: Event[];
 }

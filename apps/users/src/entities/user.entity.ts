@@ -1,4 +1,4 @@
-import { ObjectType, Field, Directive, Int, ID } from '@nestjs/graphql';
+import { ObjectType, Field, Directive, ID } from '@nestjs/graphql';
 import { Role } from './role.entity';
 
 @ObjectType()
@@ -30,13 +30,4 @@ export class User {
 
   @Field(() => Role)
   role?: Role;
-
-  /* @Field()
-  createdAt: Date;
-
-  @Field()
-  updatedAt: Date; */
-
-  /* @Field(() => Int, { description: 'Example field (placeholder)' })
-  exampleField: number; */
 }
