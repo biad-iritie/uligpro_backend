@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
-import { CreateEventInput } from './dto/create-event.input';
+import {
+  buyTicketsEventInput,
+  CreateEventInput,
+} from './dto/create-event.input';
 import { UpdateEventInput } from './dto/update-event.input';
 
 @Injectable()
@@ -40,25 +43,6 @@ export class EventsService {
 
   async findOne(id: number) {
     try {
-      /* const event = await this.prisma.event.findUnique({
-        relationLoadStrategy: 'join',
-        where: {
-          id,
-          ticket_categoryOnEvent: {
-            tick,
-          },
-        },
-        include: {
-          venue: true,
-          //ticket_categoryOnEvent: true,
-          ticket_categoryOnEvent: {
-            include: {
-              // we should if there's remaining ticke
-              ticket_category: true,
-            },
-          },
-        },
-      }); */
       const tickets = this.prisma.ticket_categoryOnEvent.findMany({
         relationLoadStrategy: 'join',
         where: {
@@ -79,6 +63,32 @@ export class EventsService {
     } catch (error) {
       return { error: { message: 'Error to fetch the detail' } };
     }
+  }
+
+  async buyTickets(tickets: buyTicketsEventInput[]) {
+    var total: number = 0;
+    const officialPrices = await this.getTicketPrice(tickets[0].eventId);
+    //console.log(officialPrices);
+
+    tickets.map((ticket) => {
+      officialPrices.filter((officialPrice) => {
+        if (ticket.ticket_categoryId === officialPrice.ticket_categoryId)
+          total += officialPrice.price * ticket.quantity;
+      });
+    });
+    return total;
+  }
+
+  async getTicketPrice(eventId: number) {
+    return await this.prisma.ticket_categoryOnEvent.findMany({
+      where: {
+        AND: [{ eventId }],
+      },
+      select: {
+        price: true,
+        ticket_categoryId: true,
+      },
+    });
   }
 
   update(id: number, updateEventInput: UpdateEventInput) {

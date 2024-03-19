@@ -24,3 +24,12 @@ export class EventDetailsResponse {
   @Field(() => ErrorType, { nullable: true })
   error?: ErrorType;
 }
+
+@ObjectType()
+export class ByTicketsResponse {
+  /* @Field()
+  activation_token: string; */
+
+  @Field()
+  message: string;
+}

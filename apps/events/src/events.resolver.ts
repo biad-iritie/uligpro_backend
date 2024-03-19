@@ -1,9 +1,14 @@
 import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
+import { buyTicketsEventInput } from './dto/create-event.input';
 import { UpdateEventInput } from './dto/update-event.input';
 import { Event } from './entities/event.entity';
 
 import { EventsService } from './events.service';
-import { EventDetailsResponse, FindAllResponse } from './types/event.type';
+import {
+  ByTicketsResponse,
+  EventDetailsResponse,
+  FindAllResponse,
+} from './types/event.type';
 
 @Resolver(() => Event)
 export class EventsResolver {
@@ -26,6 +31,15 @@ export class EventsResolver {
     return await this.eventsService.findOne(id);
   }
 
+  @Mutation(() => ByTicketsResponse)
+  async buyTickets(
+    @Args('tickets', { type: () => [buyTicketsEventInput] })
+    tickets: buyTicketsEventInput[],
+  ) {
+    console.log(tickets[0]);
+
+    return await this.eventsService.buyTickets(tickets);
+  }
   @Query(() => Event, { name: 'event' })
   findOne(@Args('id', { type: () => Int }) id: number) {
     return this.eventsService.findOne(id);
