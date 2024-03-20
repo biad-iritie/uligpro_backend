@@ -5,7 +5,7 @@ import { Role } from './role.entity';
 @Directive('@key(fields:"id")')
 export class User {
   @Field(() => ID)
-  id: number;
+  id: string;
 
   @Field()
   name: string;
@@ -26,7 +26,7 @@ export class User {
   confirmed: Boolean;
 
   @Field()
-  roleId: number;
+  roleId?: string;
 
   @Field(() => Role)
   role?: Role;

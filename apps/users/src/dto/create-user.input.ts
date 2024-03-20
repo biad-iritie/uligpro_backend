@@ -27,7 +27,7 @@ export class CreateRegularUserInput {
   confirmed?: boolean = true;
 
   @Field()
-  roleId?: number = 1;
+  roleId?: string = '1';
   /* @Field(() => Int, { description: 'Example field (placeholder)' })
   exampleField: number; */
 }

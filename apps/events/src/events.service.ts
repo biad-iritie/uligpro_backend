@@ -3,9 +3,17 @@ import { PrismaService } from '../../../prisma/prisma.service';
 import {
   buyTicketsEventInput,
   CreateEventInput,
+  TransactionInput,
 } from './dto/create-event.input';
 import { UpdateEventInput } from './dto/update-event.input';
 const crypto = require('crypto');
+
+interface storeTicket {
+  userId: string;
+  eventId: string;
+  ticket_categoryId: string;
+  code: string;
+}
 
 @Injectable()
 export class EventsService {
@@ -68,11 +76,43 @@ export class EventsService {
 
   async generateTickets(
     tickets: buyTicketsEventInput[],
-    transactionCode: string,
-    transactionDate: Date,
+    transaction: TransactionInput,
   ) {
-    console.log(crypto.randomUUID());
-    return { message: 'generateTickets' };
+    var storeTickets: storeTicket[] = [];
+
+    //GENERATE TICKET CODE
+    tickets.map((ticket) => {
+      for (let i = 0; i < ticket.quantity; i++) {
+        storeTickets.push({
+          userId: '4',
+          eventId: ticket.eventId,
+          ticket_categoryId: ticket.ticket_categoryId,
+          code: crypto.randomUUID(),
+        });
+      }
+    });
+    console.log(storeTickets);
+    try {
+      await this.prisma.transaction.create({
+        data: {
+          code: transaction.code,
+          amount: transaction.amount,
+          debitNumber: transaction.debitNumber,
+          way: transaction.way,
+          didAt: transaction.didAt,
+          tickets: {
+            createMany: {
+              data: storeTickets,
+            },
+          },
+        },
+      });
+      return { message: 'Ticket(s) genérés' };
+    } catch (error) {
+      console.log(error);
+
+      return { message: 'Error in generating tickets' };
+    }
   }
 
   async getPurchaseAmount(tickets: buyTicketsEventInput[]) {

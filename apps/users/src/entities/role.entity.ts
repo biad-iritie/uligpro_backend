@@ -5,7 +5,7 @@ import { User } from './user.entity';
 @Directive('@key(fields:"id")')
 export class Role {
   @Field(() => ID)
-  id: number;
+  id: string;
 
   @Field()
   name: string;

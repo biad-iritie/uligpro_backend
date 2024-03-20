@@ -19,7 +19,7 @@ interface userData {
   password: string;
   tel: string;
   confirmed: boolean;
-  roleId: number;
+  roleId: string;
 }
 
 @Injectable()

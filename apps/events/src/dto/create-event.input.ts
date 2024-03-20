@@ -21,3 +21,26 @@ export class buyTicketsEventInput {
   @IsNotEmpty({ message: 'Select a quantity' })
   quantity: number;
 }
+
+@InputType()
+export class TransactionInput {
+  @Field(() => String)
+  @IsNotEmpty({ message: 'Select an event' })
+  code: string;
+
+  @Field(() => Int)
+  @IsNotEmpty({ message: 'Select an amount' })
+  amount: number;
+
+  @Field(() => String)
+  @IsNotEmpty({ message: 'Select a debitNumber' })
+  debitNumber: string;
+
+  @Field(() => String)
+  @IsNotEmpty({ message: 'Select a way' })
+  way: string;
+
+  @Field()
+  @IsNotEmpty({ message: 'Select a didAt' })
+  didAt: Date;
+}

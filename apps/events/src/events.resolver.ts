@@ -1,5 +1,8 @@
 import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
-import { buyTicketsEventInput } from './dto/create-event.input';
+import {
+  buyTicketsEventInput,
+  TransactionInput,
+} from './dto/create-event.input';
 import { UpdateEventInput } from './dto/update-event.input';
 import { Event } from './entities/event.entity';
 
@@ -43,16 +46,11 @@ export class EventsResolver {
   async generateTickets(
     @Args('tickets', { type: () => [buyTicketsEventInput] })
     tickets: buyTicketsEventInput[],
-    @Args('transactionCode', { type: () => String })
-    transactionCode: string,
-    @Args('transactionDate', { type: () => Date })
-    transactionDate: Date,
-  ) {
-    this.eventsService.generateTickets(
-      tickets,
-      transactionCode,
-      transactionDate,
-    );
+
+    @Args('transaction', { type: () => TransactionInput })
+    transaction: TransactionInput,
+  ): Promise<TestResponse> {
+    return await this.eventsService.generateTickets(tickets, transaction);
   }
 
   @Query(() => Event, { name: 'event' })
