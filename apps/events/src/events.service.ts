@@ -5,6 +5,7 @@ import {
   CreateEventInput,
 } from './dto/create-event.input';
 import { UpdateEventInput } from './dto/update-event.input';
+const crypto = require('crypto');
 
 @Injectable()
 export class EventsService {
@@ -41,7 +42,7 @@ export class EventsService {
     }
   }
 
-  async findOne(id: number) {
+  async findOne(id: string) {
     try {
       const tickets = this.prisma.ticket_categoryOnEvent.findMany({
         relationLoadStrategy: 'join',
@@ -65,11 +66,19 @@ export class EventsService {
     }
   }
 
-  async buyTickets(tickets: buyTicketsEventInput[]) {
+  async generateTickets(
+    tickets: buyTicketsEventInput[],
+    transactionCode: string,
+    transactionDate: Date,
+  ) {
+    console.log(crypto.randomUUID());
+    return { message: 'generateTickets' };
+  }
+
+  async getPurchaseAmount(tickets: buyTicketsEventInput[]) {
     var total: number = 0;
     const officialPrices = await this.getTicketPrice(tickets[0].eventId);
     //console.log(officialPrices);
-
     tickets.map((ticket) => {
       officialPrices.filter((officialPrice) => {
         if (ticket.ticket_categoryId === officialPrice.ticket_categoryId)
@@ -79,7 +88,7 @@ export class EventsService {
     return total;
   }
 
-  async getTicketPrice(eventId: number) {
+  async getTicketPrice(eventId: string) {
     return await this.prisma.ticket_categoryOnEvent.findMany({
       where: {
         AND: [{ eventId }],

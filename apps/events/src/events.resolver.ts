@@ -5,9 +5,9 @@ import { Event } from './entities/event.entity';
 
 import { EventsService } from './events.service';
 import {
-  ByTicketsResponse,
   EventDetailsResponse,
   FindAllResponse,
+  TestResponse,
 } from './types/event.type';
 
 @Resolver(() => Event)
@@ -26,22 +26,37 @@ export class EventsResolver {
 
   @Query(() => EventDetailsResponse, { name: 'getEventDetail' })
   async findEventDetail(
-    @Args('id', { type: () => Int }) id: number,
+    @Args('id', { type: () => String }) id: string,
   ): Promise<EventDetailsResponse> {
     return await this.eventsService.findOne(id);
   }
 
-  @Mutation(() => ByTicketsResponse)
-  async buyTickets(
+  @Query(() => Int)
+  async getPurchaseAmount(
     @Args('tickets', { type: () => [buyTicketsEventInput] })
     tickets: buyTicketsEventInput[],
   ) {
-    console.log(tickets[0]);
-
-    return await this.eventsService.buyTickets(tickets);
+    return await this.eventsService.getPurchaseAmount(tickets);
   }
+
+  @Mutation(() => TestResponse)
+  async generateTickets(
+    @Args('tickets', { type: () => [buyTicketsEventInput] })
+    tickets: buyTicketsEventInput[],
+    @Args('transactionCode', { type: () => String })
+    transactionCode: string,
+    @Args('transactionDate', { type: () => Date })
+    transactionDate: Date,
+  ) {
+    this.eventsService.generateTickets(
+      tickets,
+      transactionCode,
+      transactionDate,
+    );
+  }
+
   @Query(() => Event, { name: 'event' })
-  findOne(@Args('id', { type: () => Int }) id: number) {
+  findOne(@Args('id', { type: () => String }) id: string) {
     return this.eventsService.findOne(id);
   }
 

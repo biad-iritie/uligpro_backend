@@ -16,53 +16,54 @@ datasource db {
 }
 
 model Role {
-  id   Int    @id @default(autoincrement()) @map("_id")
+  id   String @id @default(uuid()) @map("_id")
   name String
   user User[]
 }
 
 model User {
-  id        Int      @id @default(autoincrement()) @map("_id")
+  id        String   @id @default(uuid()) @map("_id")
   name      String
   email     String   @unique
   tel       String   @unique
   password  String
   confirmed Boolean  @default(false)
   createdAt DateTime @default(now())
-  roleId    Int
+  roleId    String
   role      Role     @relation(fields: [roleId], references: [id])
 }
 
 model Venue {
-  id      Int     @id @default(autoincrement()) @map("_id")
+  id      String  @id @default(uuid()) @map("_id")
   name    String  @unique
   address String
   event   Event[]
 }
 
 model Event {
-  id        Int      @id @default(autoincrement()) @map("_id")
+  id        String   @id @default(uuid()) @map("_id")
   name      String
   date      DateTime @default(now())
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
-  evenueId  Int
+  evenueId  String
   venue     Venue    @relation(fields: [evenueId], references: [id])
 
   ticket_categoryOnEvent Ticket_categoryOnEvent[]
   match                  Match[]
+  tickets                Ticket[]
 }
 
 model Ticket_category {
-  id                     Int                      @id @default(autoincrement()) @map("_id")
+  id                     String                   @id @default(uuid()) @map("_id")
   name                   String                   @unique
   ticket_categoryOnEvent Ticket_categoryOnEvent[]
 }
 
 model Ticket_categoryOnEvent {
-  eventId           Int
+  eventId           String
   event             Event           @relation(fields: [eventId], references: [id])
-  ticket_categoryId Int
+  ticket_categoryId String
   ticket_category   Ticket_category @relation(fields: [ticket_categoryId], references: [id])
   price             Int
   capacity          Int
@@ -72,7 +73,7 @@ model Ticket_categoryOnEvent {
 }
 
 model Team {
-  id         Int     @id @default(autoincrement()) @map("_id")
+  id         String  @id @default(uuid()) @map("_id")
   name       String
   logo       String
   university String
@@ -83,17 +84,39 @@ model Team {
 
 model Match {
   time         String
-  team1Id      Int
-  team1        Team   @relation("team home", fields: [team1Id], references: [id])
-  team2Id      Int
-  team2        Team   @relation("team away", fields: [team2Id], references: [id])
+  team1Id      String
+  team1        Team    @relation("team home", fields: [team1Id], references: [id])
+  team2Id      String
+  team2        Team    @relation("team away", fields: [team2Id], references: [id])
   goal1        Int
   goal2        Int
-  winner       Int
-  teamWinner   Team?  @relation(fields: [teamIdWinner], references: [id])
-  teamIdWinner Int?
-  eventId      Int
-  event        Event  @relation(fields: [eventId], references: [id])
+  teamWinner   Team?   @relation(fields: [teamIdWinner], references: [id])
+  teamIdWinner String?
+  eventId      String
+  event        Event   @relation(fields: [eventId], references: [id])
 
   @@id([team1Id, team2Id, eventId])
+}
+
+model Transaction {
+  id          String   @id @default(uuid()) @map("_id")
+  code        String   @unique
+  amount      Int
+  debitNumber String
+  way         String
+  didAt       DateTime
+  tickets     Ticket[]
+}
+
+model Ticket {
+  eventId       String
+  event         Event       @relation(fields: [eventId], references: [id])
+  transactionId String
+  transaction   Transaction @relation(fields: [transactionId], references: [id])
+  code          String      @unique
+  scanned       Boolean
+  scannedAt     DateTime
+  createdAt     DateTime
+
+  @@id([eventId, transactionId, code])
 }

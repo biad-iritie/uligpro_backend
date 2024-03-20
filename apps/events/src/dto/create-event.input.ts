@@ -9,13 +9,13 @@ export class CreateEventInput {
 
 @InputType()
 export class buyTicketsEventInput {
-  @Field(() => Int)
+  @Field(() => String)
   @IsNotEmpty({ message: 'Select an event' })
-  eventId: number;
+  eventId: string;
 
-  @Field(() => Int)
+  @Field(() => String)
   @IsNotEmpty({ message: 'Select a ticket category' })
-  ticket_categoryId: number;
+  ticket_categoryId: string;
 
   @Field()
   @IsNotEmpty({ message: 'Select a quantity' })

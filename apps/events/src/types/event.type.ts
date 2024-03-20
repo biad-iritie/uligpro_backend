@@ -26,7 +26,16 @@ export class EventDetailsResponse {
 }
 
 @ObjectType()
-export class ByTicketsResponse {
+export class BuyTicketsResponse {
+  /* @Field()
+  activation_token: string; */
+
+  @Field()
+  message: string;
+}
+
+@ObjectType()
+export class TestResponse {
   /* @Field()
   activation_token: string; */
 

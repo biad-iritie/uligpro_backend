@@ -180,7 +180,7 @@ export class UsersService {
     return this.prisma.user.findMany({});
   }
 
-  findOne(id: number) {
+  findOne(id: String) {
     return `This action returns a #${id} user`;
   }
 
