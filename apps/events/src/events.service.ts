@@ -91,7 +91,6 @@ export class EventsService {
         });
       }
     });
-    console.log(storeTickets);
     try {
       await this.prisma.transaction.create({
         data: {
