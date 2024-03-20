@@ -1,25 +1,17 @@
 import { ConfigService } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
 import crypto from 'crypto';
 
-export class protect {
-  constructor(
-    private readonly config: ConfigService,
-    private readonly algorithm: string,
-    private readonly secretKey: string,
-    private readonly iv: string,
-  ) {
-    this.algorithm = this.config.get<string>('ALGORITHM');
-    this.secretKey = this.config.get<string>('SECRET_KEY_PROTECT');
-    this.iv = this.config.get<string>('IV');
-  }
+export class Protect {
+  constructor(private readonly config: ConfigService) {}
 
   async encryptData(data: any) {
+    console.log(data);
     const cipher = crypto.createCipheriv(
-      this.algorithm,
-      this.secretKey,
-      this.iv,
+      this.config.get<string>('ALGORITHM'),
+      this.config.get<string>('SECRET_KEY_PROTECT'),
+      this.config.get<string>('IV'),
     );
+
     return Buffer.from(
       cipher.update(data, 'utf8', 'hex') + cipher.final('hex'),
     ).toString('base64'); // Encrypts data and converts to hex and base64
@@ -28,9 +20,9 @@ export class protect {
   async decryptData(encryptedData: string) {
     const buff = Buffer.from(encryptedData, 'base64');
     const decipher = crypto.createDecipheriv(
-      this.algorithm,
-      this.secretKey,
-      this.iv,
+      this.config.get<string>('ALGORITHM'),
+      this.config.get<string>('SECRET_KEY_PROTECT'),
+      this.config.get<string>('IV'),
     );
     return (
       decipher.update(buff.toString('utf8'), 'hex', 'utf8') +

@@ -5,12 +5,14 @@ import {
 } from './dto/create-event.input';
 import { UpdateEventInput } from './dto/update-event.input';
 import { Event } from './entities/event.entity';
+import { Ticket } from './entities/ticket.entity';
 
 import { EventsService } from './events.service';
 import {
   EventDetailsResponse,
   FindAllResponse,
   TestResponse,
+  TicketsResponse,
 } from './types/event.type';
 
 @Resolver(() => Event)
@@ -51,6 +53,25 @@ export class EventsResolver {
     transaction: TransactionInput,
   ): Promise<TestResponse> {
     return await this.eventsService.generateTickets(tickets, transaction);
+  }
+
+  @Query(() => TicketsResponse)
+  async getUserTickets(): Promise<TicketsResponse> {
+    return await this.eventsService.getUserTickets();
+  }
+
+  @Query(() => String, { name: 'getQRcode' })
+  async generateQRCode(
+    @Args('code', { type: () => String }) code: string,
+  ): Promise<String> {
+    return await this.eventsService.generateQRCode(code);
+  }
+
+  @Mutation(() => String, { name: 'getTicketScanned' })
+  async scanTicket(
+    @Args('code', { type: () => String }) code: string,
+  ): Promise<String> {
+    return await this.eventsService.scanTicket(code);
   }
 
   @Query(() => Event, { name: 'event' })

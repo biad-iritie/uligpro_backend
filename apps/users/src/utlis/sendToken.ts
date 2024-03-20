@@ -2,7 +2,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '../entities/user.entity';
 
-export class sendToken {
+export class SendToken {
   constructor(
     private readonly config: ConfigService,
     private readonly jwt: JwtService,

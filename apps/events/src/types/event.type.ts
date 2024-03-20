@@ -1,6 +1,7 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { ErrorType } from 'apps/users/src/types/user.type';
 import { Event } from '../entities/event.entity';
+import { Ticket } from '../entities/ticket.entity';
 import { Ticket_categoryOnEvent } from '../entities/ticket_categoryOnEvent';
 
 @ObjectType()
@@ -20,6 +21,17 @@ export class EventDetailsResponse {
   activation_token: string; */
   @Field(() => [Ticket_categoryOnEvent])
   tickets?: Ticket_categoryOnEvent[] | any;
+
+  @Field(() => ErrorType, { nullable: true })
+  error?: ErrorType;
+}
+
+@ObjectType()
+export class TicketsResponse {
+  /* @Field()
+  activation_token: string; */
+  @Field(() => [Ticket])
+  tickets?: Ticket[] | any;
 
   @Field(() => ErrorType, { nullable: true })
   error?: ErrorType;

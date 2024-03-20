@@ -13,6 +13,9 @@ import { PrismaService } from '../../../prisma/prisma.service';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     GraphQLModule.forRoot<ApolloFederationDriverConfig>({
       driver: ApolloFederationDriver,
       autoSchemaFile: {
@@ -21,6 +24,6 @@ import { PrismaService } from '../../../prisma/prisma.service';
     }),
     PrismaModule,
   ],
-  providers: [EventsResolver, EventsService, PrismaService],
+  providers: [EventsResolver, EventsService, PrismaService, ConfigService],
 })
 export class EventsModule {}

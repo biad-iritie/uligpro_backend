@@ -11,7 +11,7 @@ import * as bcrypt from 'bcrypt';
 import { JwtService, JwtVerifyOptions } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { EmailService } from './email/email.service';
-import { sendToken } from './utlis/sendToken';
+import { SendToken } from './utlis/sendToken';
 
 interface userData {
   name: string;
@@ -141,7 +141,7 @@ export class UsersService {
       },
     });
     if (user && (await this.comparePassword(password, user.password))) {
-      const tokenSender = new sendToken(this.configService, this.jwtService);
+      const tokenSender = new SendToken(this.configService, this.jwtService);
       //console.log(user);
 
       return tokenSender.sendToken(user);
