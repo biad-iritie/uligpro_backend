@@ -18,20 +18,20 @@ export class UsersResolver {
   constructor(private readonly usersService: UsersService) {}
 
   @Mutation(() => RegisterResponse)
-  async registerRegularUser(
+  async registerUser(
     @Args('UserInput')
     createRegularUserInput: CreateRegularUserInput,
     @Context()
     context: { res: Response },
   ): Promise<RegisterResponse> {
-    if (
+    /* if (
       !createRegularUserInput.name ||
       !createRegularUserInput.email ||
       !createRegularUserInput.password ||
       !createRegularUserInput.tel
     ) {
       throw new BadRequestException('Remplis tous les champs, SVP');
-    }
+    } */
     const { activationToken } = await this.usersService.createRegularUser(
       createRegularUserInput,
       context.res,
@@ -40,11 +40,11 @@ export class UsersResolver {
     return { activationToken };
   }
 
-  @Mutation(() => ActivationResponse)
+  @Mutation(() => LoginResponse)
   async activateUser(
     @Args('activationInput') activationDto: ActivationDto,
     @Context() context: { res: Response },
-  ): Promise<ActivationResponse> {
+  ): Promise<LoginResponse> {
     return await this.usersService.activateUser(activationDto, context.res);
   }
 

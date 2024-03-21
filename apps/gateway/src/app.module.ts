@@ -14,7 +14,7 @@ import { AppService } from './app.service';
         supergraphSdl: new IntrospectAndCompose({
           subgraphs: [
             { name: 'users', url: 'http://localhost:3001/graphql' },
-            //{ name: 'events', url: 'http://localhost:3002/graphql' },
+            { name: 'events', url: 'http://localhost:3002/graphql' },
           ],
         }),
       },

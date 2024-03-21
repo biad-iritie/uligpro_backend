@@ -1,9 +1,16 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { ErrorType } from 'apps/users/src/types/user.type';
 import { Event } from '../entities/event.entity';
 import { Ticket } from '../entities/ticket.entity';
 import { Ticket_categoryOnEvent } from '../entities/ticket_categoryOnEvent';
 
+@ObjectType()
+export class ErrorType {
+  @Field()
+  message: string;
+
+  @Field({ nullable: true })
+  code?: string;
+}
 @ObjectType()
 export class FindAllResponse {
   /* @Field()

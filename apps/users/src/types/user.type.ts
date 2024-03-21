@@ -1,16 +1,14 @@
-import { ObjectType, Field } from '@nestjs/graphql';
-import { Role } from '../entities/role.entity';
+import { ObjectType, Field, Directive } from '@nestjs/graphql';
 import { User } from '../entities/user.entity';
 
 @ObjectType()
-export class ErrorType {
+export class ErrorTypeUser {
   @Field()
   message: string;
 
   @Field({ nullable: true })
   code?: string;
 }
-
 @ObjectType()
 export class RegisterResponse {
   /* @Field()
@@ -18,8 +16,8 @@ export class RegisterResponse {
   @Field()
   activationToken: string;
 
-  @Field(() => ErrorType, { nullable: true })
-  error?: ErrorType;
+  @Field(() => ErrorTypeUser, { nullable: true })
+  error?: ErrorTypeUser;
 }
 
 @ObjectType()
@@ -29,8 +27,8 @@ export class ActivationResponse {
   @Field(() => User, { nullable: true })
   user?: User | any;
 
-  @Field(() => ErrorType, { nullable: true })
-  error?: ErrorType;
+  @Field(() => ErrorTypeUser, { nullable: true })
+  error?: ErrorTypeUser;
 }
 
 @ObjectType()
@@ -46,8 +44,8 @@ export class LoginResponse {
   @Field({ nullable: true })
   refreshToken?: string;
 
-  @Field(() => ErrorType, { nullable: true })
-  error?: ErrorType;
+  @Field(() => ErrorTypeUser, { nullable: true })
+  error?: ErrorTypeUser;
 }
 
 @ObjectType()

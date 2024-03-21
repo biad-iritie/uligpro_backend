@@ -122,11 +122,11 @@ export class UsersService {
       throw new BadRequestException('Cet utlisateur existe déjà! ');
     }
 
-    const user = this.prisma.user.create({
+    const user = await this.prisma.user.create({
       data: { name, email, password, tel, confirmed, roleId },
     });
-
-    return { user, response };
+    /// LAAAAAAAAAAAAA stoper
+    return this.login({ email: user.email, password: user.password });
   }
 
   async login(loginDto: LoginDto) {
