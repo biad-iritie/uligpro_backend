@@ -25,9 +25,37 @@ export class CreateRegularUserInput {
 
   @Field()
   confirmed?: boolean = true;
+  /* @Field(() => Int, { description: 'Example field (placeholder)' })
+  exampleField: number; */
+}
+
+@InputType()
+export class CreateUserInput {
+  @Field()
+  @IsNotEmpty({ message: 'Name is required.' })
+  @IsString({ message: 'Name must need to be one string.' })
+  name: string;
 
   @Field()
-  roleId?: string;
+  @IsNotEmpty({ message: 'Email is required.' })
+  @IsEmail({}, { message: 'Email est invalide.' })
+  email: string;
+
+  @Field()
+  @IsNotEmpty({ message: 'Password is required.' })
+  @MinLength(8, { message: 'Mot de passe doit être au moins 8 charactères.' })
+  password: string;
+
+  @Field()
+  @IsNotEmpty({ message: 'Phone Number is required.' })
+  @MinLength(10, { message: 'Le numero doit être au moins 10 chiffre.' })
+  tel: string;
+
+  @Field()
+  confirmed?: boolean = true;
+
+  @Field()
+  roleNmae: string;
   /* @Field(() => Int, { description: 'Example field (placeholder)' })
   exampleField: number; */
 }

@@ -1,4 +1,7 @@
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
+import { UseGuards } from '@nestjs/common';
+import { Resolver, Query, Mutation, Args, Int, Context } from '@nestjs/graphql';
+import { AuthGuard } from 'apps/users/src/guard/auth.guard';
+
 import {
   buyTicketsEventInput,
   TransactionInput,
@@ -37,22 +40,29 @@ export class EventsResolver {
   }
 
   @Query(() => Int)
+  @UseGuards(AuthGuard)
   async getPurchaseAmount(
     @Args('tickets', { type: () => [buyTicketsEventInput] })
     tickets: buyTicketsEventInput[],
+    @Context() context: { req: Request },
   ) {
-    return await this.eventsService.getPurchaseAmount(tickets);
+    return await this.eventsService.getPurchaseAmount(tickets, context);
   }
 
   @Mutation(() => TestResponse)
-  async generateTickets(
+  @UseGuards(AuthGuard)
+  async buyTickets(
     @Args('tickets', { type: () => [buyTicketsEventInput] })
     tickets: buyTicketsEventInput[],
-
+    @Context() context: { req: Request },
     @Args('transaction', { type: () => TransactionInput })
     transaction: TransactionInput,
-  ): Promise<TestResponse> {
-    return await this.eventsService.generateTickets(tickets, transaction);
+  ) {
+    return await this.eventsService.generateTickets(
+      tickets,
+      transaction,
+      context,
+    );
   }
 
   @Query(() => TicketsResponse)

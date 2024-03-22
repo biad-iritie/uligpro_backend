@@ -40,7 +40,7 @@ export class TransactionInput {
   @IsNotEmpty({ message: 'Select a way' })
   way: string;
 
-  @Field()
+  /*  @Field()
   @IsNotEmpty({ message: 'Select a didAt' })
-  didAt: Date;
+  didAt: Date; */
 }

@@ -17,7 +17,7 @@ datasource db {
 
 model Role {
   id   String @id @default(uuid()) @map("_id")
-  name String
+  name String @unique
   user User[]
 }
 
@@ -42,13 +42,13 @@ model Venue {
 }
 
 model Event {
-  id        String   @id @default(uuid()) @map("_id")
+  id        String    @id @default(uuid()) @map("_id")
   name      String
-  date      DateTime @default(now())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
+  date      DateTime
+  createdAt DateTime  @default(now())
+  updatedAt DateTime?
   evenueId  String
-  venue     Venue    @relation(fields: [evenueId], references: [id])
+  venue     Venue     @relation(fields: [evenueId], references: [id])
 
   ticket_categoryOnEvent Ticket_categoryOnEvent[]
   match                  Match[]

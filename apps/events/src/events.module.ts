@@ -11,6 +11,8 @@ import { PrismaModule } from '../../../prisma/prisma.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../../prisma/prisma.service';
 
+import { JwtService } from '@nestjs/jwt';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -24,6 +26,12 @@ import { PrismaService } from '../../../prisma/prisma.service';
     }),
     PrismaModule,
   ],
-  providers: [EventsResolver, EventsService, PrismaService, ConfigService],
+  providers: [
+    EventsResolver,
+    EventsService,
+    PrismaService,
+    ConfigService,
+    JwtService,
+  ],
 })
 export class EventsModule {}

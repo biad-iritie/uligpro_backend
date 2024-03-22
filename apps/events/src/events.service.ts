@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { randomInt, randomUUID } from 'crypto';
+import { throwError } from 'rxjs';
+import { text } from 'stream/consumers';
 import { PrismaService } from '../../../prisma/prisma.service';
 import {
   buyTicketsEventInput,
@@ -7,6 +10,7 @@ import {
   TransactionInput,
 } from './dto/create-event.input';
 import { UpdateEventInput } from './dto/update-event.input';
+import { User } from './entities/user.entity';
 import { Protect } from './utils/protect';
 const crypto = require('crypto');
 
@@ -33,6 +37,9 @@ export class EventsService {
     try {
       const events = await this.prisma.event.findMany({
         relationLoadStrategy: 'join',
+        orderBy: {
+          date: 'asc',
+        },
         where: {
           date: {
             gt: yesterday,
@@ -82,35 +89,95 @@ export class EventsService {
   async generateTickets(
     tickets: buyTicketsEventInput[],
     transaction: TransactionInput,
+    req: any,
   ) {
     var storeTickets: storeTicket[] = [];
 
-    //GENERATE TICKET CODE
-    tickets.map((ticket) => {
-      for (let i = 0; i < ticket.quantity; i++) {
-        storeTickets.push({
-          userId: '4',
-          eventId: ticket.eventId,
-          ticket_categoryId: ticket.ticket_categoryId,
-          code: crypto.randomUUID(),
-        });
-      }
-    });
     try {
-      await this.prisma.transaction.create({
-        data: {
-          code: transaction.code,
-          amount: transaction.amount,
-          debitNumber: transaction.debitNumber,
-          way: transaction.way,
-          didAt: transaction.didAt,
-          tickets: {
-            createMany: {
-              data: storeTickets,
-            },
+      await this.prisma.$transaction(async (tx) => {
+        // check the remaining tickets
+        const remainingTickets = await tx.ticket_categoryOnEvent.findMany({
+          where: {
+            eventId: tickets[0].eventId,
           },
-        },
+        });
+
+        tickets.map((ticket) => {
+          remainingTickets.map((remaining) => {
+            if (remaining.ticket_categoryId == ticket.ticket_categoryId) {
+              //check if number of ticket purchasing it not more the remainning
+              const nbr_check =
+                remaining.capacity - remaining.ticket_sold - ticket.quantity;
+              if (nbr_check < 0) {
+                throw new Error(
+                  'Le nombre ticket demandé est superieur au ticket disponible, veillez reduire SVP',
+                );
+              }
+            }
+          });
+        });
+
+        //INCREMENT SOLD_TICKET
+
+        for (let i = 0; i < tickets.length; i++) {
+          const modified = await tx.ticket_categoryOnEvent.update({
+            where: {
+              eventId_ticket_categoryId: {
+                eventId: tickets[i].eventId,
+                ticket_categoryId: tickets[i].ticket_categoryId,
+              },
+            },
+            data: {
+              ticket_sold: {
+                increment: tickets[i].quantity,
+              },
+            },
+          });
+        }
+
+        // Get the actual purchase amount
+        transaction.amount = await this.getPurchaseAmount(tickets, req);
+
+        // connecting with the API payment
+        const { codeStatus, code, amount, debit_number, way, didAt }: any =
+          await this.facking_paymentAPI({
+            amount: transaction.amount,
+            debitNumber: transaction.debitNumber,
+            way: transaction.way,
+          });
+
+        if (codeStatus === 1) {
+          //GENERATE TICKET CODE
+          tickets.map((ticket) => {
+            for (let i = 0; i < ticket.quantity; i++) {
+              storeTickets.push({
+                userId: req.req.user.id,
+                eventId: ticket.eventId,
+                ticket_categoryId: ticket.ticket_categoryId,
+                code: crypto.randomUUID(),
+              });
+            }
+          });
+
+          await this.prisma.transaction.create({
+            data: {
+              code: code,
+              amount: amount,
+              debitNumber: debit_number,
+              way: way,
+              didAt: didAt,
+              tickets: {
+                createMany: {
+                  data: storeTickets,
+                },
+              },
+            },
+          });
+        } else {
+          throw new Error('La transaction a echoué réesayez plus tard');
+        }
       });
+
       return { message: 'Ticket(s) genérés' };
     } catch (error) {
       console.log(error);
@@ -119,7 +186,21 @@ export class EventsService {
     }
   }
 
-  async getPurchaseAmount(tickets: buyTicketsEventInput[]) {
+  async facking_paymentAPI(data: {
+    amount: number;
+    debitNumber: string;
+    way: string;
+  }) {
+    return {
+      codeStatus: 1,
+      code: randomInt(10000000000).toString(),
+      amount: data.amount,
+      debit_number: data.debitNumber,
+      way: data.way,
+      didAt: new Date(),
+    };
+  }
+  async getPurchaseAmount(tickets: buyTicketsEventInput[], req: any) {
     var total: number = 0;
     const officialPrices = await this.getTicketsPrice(tickets[0].eventId);
     //console.log(officialPrices);

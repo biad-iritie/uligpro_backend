@@ -1,7 +1,12 @@
 import { Resolver, Query, Mutation, Args, Int, Context } from '@nestjs/graphql';
 import { UsersService } from './users.service';
 import { User } from './entities/user.entity';
-import { ActivationDto, CreateRegularUserInput } from './dto/create-user.input';
+import {
+  ActivationDto,
+  CreateRegularUserInput,
+  CreateUserInput,
+  LoginDto,
+} from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
 import {
   ActivationResponse,
@@ -18,7 +23,7 @@ export class UsersResolver {
   constructor(private readonly usersService: UsersService) {}
 
   @Mutation(() => RegisterResponse)
-  async registerUser(
+  async registerRegularUser(
     @Args('UserInput')
     createRegularUserInput: CreateRegularUserInput,
     @Context()
@@ -40,6 +45,16 @@ export class UsersResolver {
     return { activationToken };
   }
 
+  @Mutation(() => String)
+  async registerStaff(
+    @Args('UserInput')
+    userInput: CreateUserInput,
+    @Context()
+    context: { res: Response },
+  ): Promise<String> {
+    return await this.usersService.createUser(userInput);
+  }
+
   @Mutation(() => LoginResponse)
   async activateUser(
     @Args('activationInput') activationDto: ActivationDto,
@@ -50,10 +65,10 @@ export class UsersResolver {
 
   @Mutation(() => LoginResponse)
   async login(
-    @Args('email') email: string,
-    @Args('password') password: string,
+    @Args('userInput')
+    user: LoginDto,
   ): Promise<LoginResponse> {
-    return await this.usersService.login({ email, password });
+    return await this.usersService.login(user);
   }
 
   @Query(() => LoginResponse)

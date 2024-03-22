@@ -1,6 +1,6 @@
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { User } from '../entities/user.entity';
+//import { User } from '../entities/user.entity';
 
 export class SendToken {
   constructor(
@@ -8,9 +8,10 @@ export class SendToken {
     private readonly jwt: JwtService,
   ) {}
 
-  public sendToken(user: User) {
+  public sendToken(user) {
     const accessToken = this.jwt.sign(
       {
+        roleName: user.role.name,
         id: user.id,
       },
       {
@@ -21,6 +22,7 @@ export class SendToken {
 
     const refreshToken = this.jwt.sign(
       {
+        roleName: user.role.name,
         id: user.id,
       },
       {
@@ -28,6 +30,11 @@ export class SendToken {
         expiresIn: this.config.get<string>('DURATION_REFRESH_TOKEN'),
       },
     );
-    return { user, accessToken, refreshToken };
+
+    return {
+      user: { name: user.name, email: user.email, tel: user.tel },
+      accessToken,
+      refreshToken,
+    };
   }
 }

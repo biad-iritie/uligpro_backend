@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import {
   ActivationDto,
   CreateRegularUserInput,
+  CreateUserInput,
   LoginDto,
 } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
@@ -19,7 +20,7 @@ interface userData {
   password: string;
   tel: string;
   confirmed: boolean;
-  roleId: string;
+  roleId?: string;
 }
 
 @Injectable()
@@ -36,8 +37,7 @@ export class UsersService {
     createRegularUserInput: CreateRegularUserInput,
     response: Response,
   ) {
-    const { name, email, password, tel, confirmed, roleId } =
-      createRegularUserInput;
+    const { name, email, password, tel, confirmed } = createRegularUserInput;
     const existUser = await this.existUser(email, tel);
     if (existUser) {
       throw new BadRequestException('Cet utlisateur existe déjà! ');
@@ -50,7 +50,6 @@ export class UsersService {
       password: hashedPassword,
       tel,
       confirmed,
-      roleId,
     };
 
     const activation = await this.createActivationToken(user);
@@ -85,7 +84,7 @@ export class UsersService {
   }
   //create activation token
   async createActivationToken(user: userData) {
-    const code = Math.floor(100 + Math.random() * 9000).toString();
+    const code = Math.floor(1000 + Math.random() * 9000).toString();
 
     const token = this.jwtService.sign(
       {
@@ -122,35 +121,93 @@ export class UsersService {
       throw new BadRequestException('Cet utlisateur existe déjà! ');
     }
 
-    const user = await this.prisma.user.create({
-      data: { name, email, password, tel, confirmed, roleId },
-    });
-    /// LAAAAAAAAAAAAA stoper
-    return this.login({ email: user.email, password: user.password });
+    try {
+      const user = await this.prisma.user.create({
+        data: {
+          name,
+          email,
+          password,
+          tel,
+          confirmed,
+          role: {
+            connect: {
+              name: 'Regular',
+            },
+          },
+        },
+        include: { role: true },
+      });
+      const tokenSender = new SendToken(this.configService, this.jwtService);
+      return tokenSender.sendToken(user);
+    } catch (error) {
+      return {
+        user: null,
+        accessToken: null,
+        refreshToken: null,
+        error: {
+          message:
+            'Erreur survenue lors de la creation du compte, SVP recréer votre compte',
+        },
+      };
+    }
+  }
+
+  async createUser(user: CreateUserInput) {
+    try {
+      const hashedPassword = await bcrypt.hash(user.password, 15);
+      await this.prisma.user.create({
+        data: {
+          name: user.name,
+          email: user.email,
+          password: hashedPassword,
+          tel: user.tel,
+          confirmed: true,
+          role: {
+            connect: {
+              name: user.roleNmae,
+            },
+          },
+        },
+      });
+      return 'User created';
+    } catch (error) {
+      console.log(error);
+
+      return 'User not created';
+    }
   }
 
   async login(loginDto: LoginDto) {
     const { email, password } = loginDto;
 
-    const user = await this.prisma.user.findUnique({
-      where: {
-        email,
-      },
-      include: {
-        role: true,
-      },
-    });
-    if (user && (await this.comparePassword(password, user.password))) {
-      const tokenSender = new SendToken(this.configService, this.jwtService);
-      //console.log(user);
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: {
+          email,
+        },
+        include: {
+          role: true,
+        },
+      });
+      if (user && (await this.comparePassword(password, user.password))) {
+        const tokenSender = new SendToken(this.configService, this.jwtService);
+        //console.log(user);
 
-      return tokenSender.sendToken(user);
-    } else {
+        return tokenSender.sendToken(user);
+      } else {
+        return {
+          user: null,
+          accessToken: null,
+          refreshToken: null,
+          error: { message: 'Email ou mot de passe invalide' },
+        };
+      }
+    } catch (error) {
       return {
         user: null,
         accessToken: null,
         refreshToken: null,
-        error: { message: 'Email ou mot de passe invalide' },
+        error: { message: 'Error de connexion niveau serveur, re-essayer SVP' },
       };
     }
   }
@@ -171,9 +228,9 @@ export class UsersService {
   //GET LOGGED IN USER
   async getLoggedInUser(req: any) {
     const user = req.user;
-    const accessToken = req.accessToken;
-    const refreshToken = req.refreshToken;
-    return { user, accessToken, refreshToken };
+    const accesstoken = req.accesstoken;
+    const refreshtoken = req.refreshtoken;
+    return { user, accesstoken, refreshtoken };
   }
 
   findAll() {

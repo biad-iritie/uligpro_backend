@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
-import { GqlContextType, GqlExecutionContext } from '@nestjs/graphql';
+import { GqlExecutionContext } from '@nestjs/graphql';
 import { JwtService, JwtVerifyOptions } from '@nestjs/jwt';
 import { PrismaService } from '../../../../prisma/prisma.service';
 
@@ -30,13 +30,17 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException('Please login to access this ressource!');
     }
     if (accessToken) {
-      const decoded = this.jwtService.verify(accessToken, {
-        secret: this.config.get<string>('ACCESS_TOKEN_SECRET'),
-      } as JwtVerifyOptions);
-      if (!decoded) {
-        throw new UnauthorizedException('Invalid access token');
+      try {
+        const decoded = this.jwtService.verify(accessToken, {
+          secret: this.config.get<string>('ACCESS_TOKEN_SECRET'),
+        } as JwtVerifyOptions);
+        if (!decoded) {
+          throw new UnauthorizedException('Invalid access token');
+        }
+      } catch (error) {
+        //console.log(error);
+        await this.updateAccessToken(req);
       }
-      await this.updateAccessToken(req);
     }
     return true;
   }
@@ -71,8 +75,8 @@ export class AuthGuard implements CanActivate {
           expiresIn: this.config.get<string>('DURATION_REFRESH_TOKEN'),
         },
       );
-      req.accessToken = accessToken;
-      req.refreshToken = refreshToken;
+      req.accesstoken = accessToken;
+      req.refreshtoken = refreshToken;
       req.user = user;
     } catch (error) {
       console.log(error);
