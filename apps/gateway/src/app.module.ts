@@ -45,8 +45,8 @@ const setHearders = ({ req }) => {
       gateway: {
         supergraphSdl: new IntrospectAndCompose({
           subgraphs: [
-            { name: 'users', url: 'http://localhost:3001/graphql' },
-            { name: 'events', url: 'http://localhost:3002/graphql' },
+            { name: 'users', url: 'http://localhost:4001/graphql' },
+            { name: 'events', url: 'http://localhost:4002/graphql' },
           ],
         }),
         buildService: ({ name, url }) => {

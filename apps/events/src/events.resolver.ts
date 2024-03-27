@@ -66,8 +66,11 @@ export class EventsResolver {
   }
 
   @Query(() => TicketsResponse)
-  async getUserTickets(): Promise<TicketsResponse> {
-    return await this.eventsService.getUserTickets();
+  @UseGuards(AuthGuard)
+  async getUserTickets(
+    @Context() context: { req: Request },
+  ): Promise<TicketsResponse> {
+    return await this.eventsService.getUserTickets(context);
   }
 
   @Query(() => String, { name: 'getQRcode' })
@@ -78,6 +81,7 @@ export class EventsResolver {
   }
 
   @Mutation(() => String, { name: 'getTicketScanned' })
+  @UseGuards(AuthGuard)
   async scanTicket(
     @Args('code', { type: () => String }) code: string,
   ): Promise<String> {

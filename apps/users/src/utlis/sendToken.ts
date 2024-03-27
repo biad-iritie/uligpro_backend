@@ -9,6 +9,8 @@ export class SendToken {
   ) {}
 
   public sendToken(user) {
+    ////console.log(this.config.get<string>('ACCESS_TOKEN_SECRET'));
+
     const accessToken = this.jwt.sign(
       {
         roleName: user.role.name,
@@ -19,6 +21,7 @@ export class SendToken {
         expiresIn: this.config.get<string>('DURATION_ACCESS_TOKEN'),
       },
     );
+    ////console.log(this.config.get<string>('REFRESH_TOKEN_SECRET'));
 
     const refreshToken = this.jwt.sign(
       {

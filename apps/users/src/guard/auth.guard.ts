@@ -26,9 +26,13 @@ export class AuthGuard implements CanActivate {
     const accessToken = req.headers.accesstoken as string;
     const refreshToken = req.headers.refreshtoken as string;
 
+    /* //console.log('canActivate');
+    //console.log(accessToken); */
+
     if (!accessToken || !refreshToken) {
       throw new UnauthorizedException('Please login to access this ressource!');
     }
+
     if (accessToken) {
       try {
         const decoded = this.jwtService.verify(accessToken, {
@@ -37,8 +41,16 @@ export class AuthGuard implements CanActivate {
         if (!decoded) {
           throw new UnauthorizedException('Invalid access token');
         }
+        const user = await this.prisma.user.findUnique({
+          where: {
+            id: decoded.id,
+          },
+        });
+        req.accesstoken = accessToken;
+        req.refreshtoken = refreshToken;
+        req.user = user;
       } catch (error) {
-        //console.log(error);
+        ////console.log(error);
         await this.updateAccessToken(req);
       }
     }
@@ -48,6 +60,7 @@ export class AuthGuard implements CanActivate {
   async updateAccessToken(req: any): Promise<void> {
     try {
       const refreshTokenData = req.headers.refreshtoken as string;
+      ////console.log('updateAccessToken');
 
       const decoded = this.jwtService.verify(refreshTokenData, {
         secret: this.config.get<string>('REFRESH_TOKEN_SECRET'),
@@ -60,16 +73,19 @@ export class AuthGuard implements CanActivate {
         where: {
           id: decoded.id,
         },
+        include: {
+          role: true,
+        },
       });
       const accessToken = this.jwtService.sign(
-        { id: user.id },
+        { id: user.id, roleName: user.role.name },
         {
           secret: this.config.get<string>('ACCESS_TOKEN_SECRET'),
           expiresIn: this.config.get<string>('DURATION_ACCESS_TOKEN'),
         },
       );
       const refreshToken = this.jwtService.sign(
-        { id: user.id },
+        { id: user.id, roleName: user.role.name },
         {
           secret: this.config.get<string>('REFRESH_TOKEN_SECRET'),
           expiresIn: this.config.get<string>('DURATION_REFRESH_TOKEN'),
@@ -79,7 +95,7 @@ export class AuthGuard implements CanActivate {
       req.refreshtoken = refreshToken;
       req.user = user;
     } catch (error) {
-      console.log(error);
+      //console.log(error);
     }
   }
 }

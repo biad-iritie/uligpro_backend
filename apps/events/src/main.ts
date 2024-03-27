@@ -6,6 +6,6 @@ import { EventsModule } from './events.module';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(EventsModule);
   app.useGlobalPipes(new ValidationPipe());
-  await app.listen(3002);
+  await app.listen(4002);
 }
 bootstrap();

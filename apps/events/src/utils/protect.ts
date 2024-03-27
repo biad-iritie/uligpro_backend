@@ -5,7 +5,7 @@ export class Protect {
   constructor(private readonly config: ConfigService) {}
 
   async encryptData(data: any) {
-    console.log(data);
+    //console.log(data);
     const cipher = crypto.createCipheriv(
       this.config.get<string>('ALGORITHM'),
       this.config.get<string>('SECRET_KEY_PROTECT'),

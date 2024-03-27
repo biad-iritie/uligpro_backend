@@ -180,7 +180,7 @@ export class EventsService {
 
       return { message: 'Ticket(s) genérés' };
     } catch (error) {
-      console.log(error);
+      //console.log(error);
 
       return { message: 'Error in generating tickets' };
     }
@@ -203,7 +203,7 @@ export class EventsService {
   async getPurchaseAmount(tickets: buyTicketsEventInput[], req: any) {
     var total: number = 0;
     const officialPrices = await this.getTicketsPrice(tickets[0].eventId);
-    //console.log(officialPrices);
+    ////console.log(officialPrices);
     tickets.map((ticket) => {
       officialPrices.filter((officialPrice) => {
         if (ticket.ticket_categoryId === officialPrice.ticket_categoryId)
@@ -225,11 +225,11 @@ export class EventsService {
     });
   }
 
-  async getUserTickets() {
+  async getUserTickets(req: any) {
     try {
       const tickets = this.prisma.ticket.findMany({
         where: {
-          AND: [{ userId: '4' }, { scanned: false }],
+          AND: [{ userId: req.req.user.id }, { scanned: false }],
         },
         include: {
           event: true,
@@ -276,7 +276,7 @@ export class EventsService {
         return `Ticket a été déjà scanné le ${checked.scannedAt.getUTCDate()}-${checked.scannedAt.getUTCMonth()}-${checked.scannedAt.getUTCFullYear()} ${checked.scannedAt.getUTCHours()}:${checked.scannedAt.getMinutes()}`;
       }
     } catch (error) {
-      console.log(error);
+      //console.log(error);
       return 'Error dans le processus de scan';
     }
   }

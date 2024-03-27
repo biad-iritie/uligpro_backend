@@ -55,7 +55,7 @@ export class CreateUserInput {
   confirmed?: boolean = true;
 
   @Field()
-  roleNmae: string;
+  roleName: string;
   /* @Field(() => Int, { description: 'Example field (placeholder)' })
   exampleField: number; */
 }

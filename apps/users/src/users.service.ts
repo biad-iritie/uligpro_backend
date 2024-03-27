@@ -164,14 +164,14 @@ export class UsersService {
           confirmed: true,
           role: {
             connect: {
-              name: user.roleNmae,
+              name: user.roleName,
             },
           },
         },
       });
       return 'User created';
     } catch (error) {
-      console.log(error);
+      //console.log(error);
 
       return 'User not created';
     }
@@ -191,7 +191,7 @@ export class UsersService {
       });
       if (user && (await this.comparePassword(password, user.password))) {
         const tokenSender = new SendToken(this.configService, this.jwtService);
-        //console.log(user);
+        ////console.log(user);
 
         return tokenSender.sendToken(user);
       } else {
@@ -227,10 +227,12 @@ export class UsersService {
   }
   //GET LOGGED IN USER
   async getLoggedInUser(req: any) {
+    //console.log(req.accesstoken);
+
     const user = req.user;
-    const accesstoken = req.accesstoken;
-    const refreshtoken = req.refreshtoken;
-    return { user, accesstoken, refreshtoken };
+    const accessToken = req.accesstoken;
+    const refreshToken = req.refreshtoken;
+    return { user, accessToken, refreshToken };
   }
 
   findAll() {

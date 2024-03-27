@@ -11,6 +11,6 @@ async function bootstrap() {
   app.setBaseViewsDir(join(__dirname, '..', 'gateway/email-templates'));
   app.setViewEngine('ejs');
 
-  await app.listen(3001);
+  await app.listen(4001);
 }
 bootstrap();
