@@ -31,5 +31,5 @@ export class Event {
   ticket_categoryOnEvent?: Ticket_categoryOnEvent[];
 
   @Field(() => [Match])
-  match?: Match[];
+  matches?: Match[];
 }

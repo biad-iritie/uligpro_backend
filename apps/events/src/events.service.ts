@@ -47,8 +47,12 @@ export class EventsService {
         },
         include: {
           venue: true,
-          //ticket_categoryOnEvent: true,
-          match: {
+          ticket_categoryOnEvent: {
+            include: {
+              ticket_category: true,
+            },
+          },
+          matches: {
             include: {
               team1: true,
               team2: true,
@@ -174,11 +178,15 @@ export class EventsService {
             },
           });
         } else {
-          throw new Error('La transaction a echoué réesayez plus tard');
+          throw new Error(
+            'La transaction a echoué, veillez réesayez plus tard',
+          );
         }
       });
 
-      return { message: 'Ticket(s) genérés' };
+      return {
+        message: 'Allez dans votre profil pour telecharger vos tickets',
+      };
     } catch (error) {
       //console.log(error);
 

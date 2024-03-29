@@ -1,5 +1,5 @@
 import { InputType, Int, Field } from '@nestjs/graphql';
-import { IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, MinLength } from 'class-validator';
 
 @InputType()
 export class CreateEventInput {
@@ -24,16 +24,17 @@ export class buyTicketsEventInput {
 
 @InputType()
 export class TransactionInput {
-  @Field(() => String)
+  /* @Field(() => String)
   @IsNotEmpty({ message: 'Select an event' })
-  code: string;
+  code: string; */
 
   @Field(() => Int)
-  @IsNotEmpty({ message: 'Select an amount' })
-  amount: number;
+  //@IsNotEmpty({ message: 'Select an amount' })
+  amount?: number = 0;
 
   @Field(() => String)
   @IsNotEmpty({ message: 'Select a debitNumber' })
+  @MinLength(10, { message: 'Le numero doit être au moins 10 chiffre.' })
   debitNumber: string;
 
   @Field(() => String)

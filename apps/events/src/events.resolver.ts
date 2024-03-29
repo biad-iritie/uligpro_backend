@@ -14,7 +14,7 @@ import { EventsService } from './events.service';
 import {
   EventDetailsResponse,
   FindAllResponse,
-  TestResponse,
+  BasicResponse,
   TicketsResponse,
 } from './types/event.type';
 
@@ -49,7 +49,7 @@ export class EventsResolver {
     return await this.eventsService.getPurchaseAmount(tickets, context);
   }
 
-  @Mutation(() => TestResponse)
+  @Mutation(() => BasicResponse)
   @UseGuards(AuthGuard)
   async buyTickets(
     @Args('tickets', { type: () => [buyTicketsEventInput] })

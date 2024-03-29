@@ -51,7 +51,7 @@ model Event {
   venue     Venue     @relation(fields: [evenueId], references: [id])
 
   ticket_categoryOnEvent Ticket_categoryOnEvent[]
-  match                  Match[]
+  matches                Match[]
   tickets                Ticket[]
 }
 

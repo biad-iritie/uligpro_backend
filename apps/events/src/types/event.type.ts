@@ -54,7 +54,7 @@ export class BuyTicketsResponse {
 }
 
 @ObjectType()
-export class TestResponse {
+export class BasicResponse {
   /* @Field()
   activation_token: string; */
 
