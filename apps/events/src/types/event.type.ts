@@ -37,7 +37,7 @@ export class EventDetailsResponse {
 export class TicketsResponse {
   /* @Field()
   activation_token: string; */
-  @Field(() => [Ticket])
+  @Field(() => [Ticket], { nullable: true })
   tickets?: Ticket[] | any;
 
   @Field(() => ErrorType, { nullable: true })

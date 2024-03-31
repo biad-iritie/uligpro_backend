@@ -235,6 +235,8 @@ export class EventsService {
 
   async getUserTickets(req: any) {
     try {
+      console.log(req.req.user);
+
       const tickets = this.prisma.ticket.findMany({
         where: {
           AND: [{ userId: req.req.user.id }, { scanned: false }],
@@ -246,9 +248,11 @@ export class EventsService {
       });
       return { tickets };
     } catch (error) {
+      console.log(error);
+
       return {
         error: {
-          message: ' Error to fetch the user tickets',
+          message: 'Desolé une erreur, ressayez plus tard',
         },
       };
     }
