@@ -76,7 +76,7 @@ export class UsersResolver {
   async getLoggedInUser(
     @Context() context: { req: Request },
   ): Promise<LoginResponse> {
-    //console.log('getLoggedInUser');
+    console.log('getLoggedInUser');
 
     return await this.usersService.getLoggedInUser(context.req);
   }

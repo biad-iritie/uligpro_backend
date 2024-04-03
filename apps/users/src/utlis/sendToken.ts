@@ -35,7 +35,12 @@ export class SendToken {
     );
 
     return {
-      user: { name: user.name, email: user.email, tel: user.tel },
+      user: {
+        name: user.name,
+        email: user.email,
+        tel: user.tel,
+        role: user.role,
+      },
       accessToken,
       refreshToken,
     };

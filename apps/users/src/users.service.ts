@@ -189,6 +189,8 @@ export class UsersService {
           role: true,
         },
       });
+      console.log(user);
+
       if (user && (await this.comparePassword(password, user.password))) {
         const tokenSender = new SendToken(this.configService, this.jwtService);
         ////console.log(user);
@@ -227,7 +229,7 @@ export class UsersService {
   }
   //GET LOGGED IN USER
   async getLoggedInUser(req: any) {
-    //console.log(req.accesstoken);
+    //console.log(req.user);
 
     const user = req.user;
     const accessToken = req.accesstoken;

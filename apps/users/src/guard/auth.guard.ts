@@ -45,6 +45,12 @@ export class AuthGuard implements CanActivate {
           where: {
             id: decoded.id,
           },
+          select: {
+            name: true,
+            email: true,
+            tel: true,
+            role: true,
+          },
         });
         req.accesstoken = accessToken;
         req.refreshtoken = refreshToken;
@@ -73,7 +79,11 @@ export class AuthGuard implements CanActivate {
         where: {
           id: decoded.id,
         },
-        include: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          tel: true,
           role: true,
         },
       });
