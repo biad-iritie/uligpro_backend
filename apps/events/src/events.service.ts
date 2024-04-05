@@ -283,13 +283,24 @@ export class EventsService {
             scannedAt: date,
           },
         });
-        return 'Ticket scannée';
+        return { status: true };
       } else {
-        return `Ticket a été déjà scanné le ${checked.scannedAt.getUTCDate()}-${checked.scannedAt.getUTCMonth()}-${checked.scannedAt.getUTCFullYear()} ${checked.scannedAt.getUTCHours()}:${checked.scannedAt.getMinutes()}`;
+        return {
+          status: false,
+          error: {
+            code: '406',
+            message: `Ticket a été déjà scanné le ${checked.scannedAt.getUTCDate()}-${checked.scannedAt.getUTCMonth()}-${checked.scannedAt.getUTCFullYear()} ${checked.scannedAt.getUTCHours()}:${checked.scannedAt.getMinutes()}`,
+          },
+        };
       }
     } catch (error) {
-      //console.log(error);
-      return 'Error dans le processus de scan';
+      return {
+        status: false,
+        error: {
+          code: '404',
+          message: 'le code n existe pas',
+        },
+      };
     }
   }
   update(id: number, updateEventInput: UpdateEventInput) {

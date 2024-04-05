@@ -189,7 +189,7 @@ export class UsersService {
           role: true,
         },
       });
-      console.log(user);
+      //console.log(user);
 
       if (user && (await this.comparePassword(password, user.password))) {
         const tokenSender = new SendToken(this.configService, this.jwtService);

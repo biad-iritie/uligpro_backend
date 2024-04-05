@@ -54,6 +54,16 @@ export class BuyTicketsResponse {
 }
 
 @ObjectType()
+export class ticketScannedResponse {
+  /* @Field()
+  activation_token: string; */
+  @Field(() => Boolean)
+  status: boolean;
+  @Field(() => ErrorType, { nullable: true })
+  error?: ErrorType;
+}
+
+@ObjectType()
 export class BasicResponse {
   /* @Field()
   activation_token: string; */

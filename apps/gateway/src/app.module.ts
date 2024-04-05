@@ -47,11 +47,11 @@ const setHearders = ({ req }) => {
           subgraphs: [
             {
               name: 'users',
-              url: 'http://localhost:4001/graphql/graphql',
+              url: process.env.SERVER_USER_SERVICE,
             },
             {
               name: 'events',
-              url: 'http://localhost:4002/graphql',
+              url: process.env.SERVER_EVENT_SERVICE,
             },
           ],
         }),

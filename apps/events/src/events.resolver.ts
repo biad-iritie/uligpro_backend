@@ -16,6 +16,7 @@ import {
   FindAllResponse,
   BasicResponse,
   TicketsResponse,
+  ticketScannedResponse,
 } from './types/event.type';
 
 @Resolver(() => Event)
@@ -80,11 +81,11 @@ export class EventsResolver {
     return await this.eventsService.generateQRCode(code);
   }
 
-  @Mutation(() => String, { name: 'getTicketScanned' })
+  @Mutation(() => ticketScannedResponse, { name: 'getTicketScanned' })
   @UseGuards(AuthGuard)
   async scanTicket(
     @Args('code', { type: () => String }) code: string,
-  ): Promise<String> {
+  ): Promise<ticketScannedResponse> {
     return await this.eventsService.scanTicket(code);
   }
 
