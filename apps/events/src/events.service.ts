@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { randomInt, randomUUID } from 'crypto';
 import { throwError } from 'rxjs';
@@ -41,9 +41,14 @@ export class EventsService {
           date: 'asc',
         },
         where: {
-          date: {
-            gt: yesterday,
-          },
+          AND: [
+            {
+              date: {
+                gt: yesterday,
+              },
+            },
+            { display: true },
+          ],
         },
         include: {
           venue: true,
@@ -235,14 +240,23 @@ export class EventsService {
 
   async getUserTickets(req: any) {
     try {
-      console.log(req.req.user);
+      //console.log(req.req.user);
 
       const tickets = this.prisma.ticket.findMany({
         where: {
           AND: [{ userId: req.req.user.id }, { scanned: false }],
         },
         include: {
-          event: true,
+          event: {
+            include: {
+              matches: {
+                include: {
+                  team1: true,
+                  team2: true,
+                },
+              },
+            },
+          },
           ticket_category: true,
         },
       });
@@ -264,43 +278,50 @@ export class EventsService {
     return crypted;
   }
 
-  async scanTicket(code: string) {
+  async scanTicket(code: string, req: any) {
     const date = new Date();
-    try {
-      const checked = await this.prisma.ticket.findUnique({
-        where: {
-          code,
-        },
-      });
-
-      if (checked.scanned !== true) {
-        await this.prisma.ticket.update({
+    if (req.user.role.name === 'REGULAR') {
+      throw new UnauthorizedException(
+        "You don't have access to this ressource!",
+      );
+    } else {
+      try {
+        const checked = await this.prisma.ticket.findUnique({
           where: {
-            code: code,
-          },
-          data: {
-            scanned: true,
-            scannedAt: date,
+            code,
           },
         });
-        return { status: true };
-      } else {
+
+        if (checked.scanned !== true) {
+          await this.prisma.ticket.update({
+            where: {
+              code: code,
+            },
+            data: {
+              scanned: true,
+              scannedAt: date,
+              scannedByUserId: req.req.user.id,
+            },
+          });
+          return { status: true };
+        } else {
+          return {
+            status: false,
+            error: {
+              code: '406',
+              message: `Ticket a été déjà scanné le ${checked.scannedAt.getUTCDate()}-${checked.scannedAt.getUTCMonth()}-${checked.scannedAt.getUTCFullYear()} ${checked.scannedAt.getUTCHours()}:${checked.scannedAt.getMinutes()}`,
+            },
+          };
+        }
+      } catch (error) {
         return {
           status: false,
           error: {
-            code: '406',
-            message: `Ticket a été déjà scanné le ${checked.scannedAt.getUTCDate()}-${checked.scannedAt.getUTCMonth()}-${checked.scannedAt.getUTCFullYear()} ${checked.scannedAt.getUTCHours()}:${checked.scannedAt.getMinutes()}`,
+            code: '404',
+            message: 'le code n existe pas',
           },
         };
       }
-    } catch (error) {
-      return {
-        status: false,
-        error: {
-          code: '404',
-          message: 'le code n existe pas',
-        },
-      };
     }
   }
   update(id: number, updateEventInput: UpdateEventInput) {

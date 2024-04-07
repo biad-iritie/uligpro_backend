@@ -22,16 +22,17 @@ model Role {
 }
 
 model User {
-  id        String   @id @default(uuid()) @map("_id")
-  name      String
-  email     String   @unique
-  tel       String   @unique
-  password  String
-  confirmed Boolean  @default(false)
-  createdAt DateTime @default(now())
-  roleId    String
-  role      Role     @relation(fields: [roleId], references: [id])
-  ticket    Ticket[]
+  id            String   @id @default(uuid()) @map("_id")
+  name          String
+  email         String   @unique
+  tel           String   @unique
+  password      String
+  confirmed     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  roleId        String
+  role          Role     @relation(fields: [roleId], references: [id])
+  ticket        Ticket[]
+  ticketScanned Ticket[] @relation("Scanner")
 }
 
 model Venue {
@@ -49,6 +50,7 @@ model Event {
   updatedAt DateTime?
   evenueId  String
   venue     Venue     @relation(fields: [evenueId], references: [id])
+  display   Boolean   @default(false)
 
   ticket_categoryOnEvent Ticket_categoryOnEvent[]
   matches                Match[]
@@ -123,6 +125,8 @@ model Ticket {
   scanned           Boolean?        @default(false)
   scannedAt         DateTime?
   createdAt         DateTime?       @default(now())
+  scannedByUserId   String?
+  scannedByUser     User?           @relation("Scanner", fields: [scannedByUserId], references: [id])
 
   @@id([eventId, transactionId, code])
 }

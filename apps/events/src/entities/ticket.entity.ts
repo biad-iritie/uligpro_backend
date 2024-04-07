@@ -1,9 +1,10 @@
 import { Directive, Field, ID, ObjectType } from '@nestjs/graphql';
 import { Event } from './event.entity';
+import { User } from './user.entity';
 import { Ticket_category } from './ticket_category';
 import { Transaction } from './transaction.entity';
 @ObjectType()
-@Directive('@key(fields:"eventId,ticket_categoryId, code")')
+@Directive('@key(fields:"eventId,transactionId, code")')
 export class Ticket {
   @Field()
   eventId: string;
@@ -34,4 +35,10 @@ export class Ticket {
 
   @Field()
   createdAt: Date;
+
+  @Field()
+  scannedByUserId: string;
+
+  @Field(() => User)
+  scannedByUser: User;
 }

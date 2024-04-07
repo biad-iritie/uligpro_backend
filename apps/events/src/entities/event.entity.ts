@@ -22,6 +22,9 @@ export class Event {
   updatedAt: Date;
 
   @Field()
+  display: boolean;
+
+  @Field()
   evenueId: number;
 
   @Field(() => Venue)

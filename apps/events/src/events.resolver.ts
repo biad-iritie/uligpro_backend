@@ -85,8 +85,9 @@ export class EventsResolver {
   @UseGuards(AuthGuard)
   async scanTicket(
     @Args('code', { type: () => String }) code: string,
+    @Context() context: { req: Request },
   ): Promise<ticketScannedResponse> {
-    return await this.eventsService.scanTicket(code);
+    return await this.eventsService.scanTicket(code, context);
   }
 
   @Query(() => Event, { name: 'event' })
