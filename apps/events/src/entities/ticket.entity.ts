@@ -40,5 +40,5 @@ export class Ticket {
   scannedByUserId: string;
 
   @Field(() => User)
-  scannedByUser: User;
+  scannedByUser?: User;
 }

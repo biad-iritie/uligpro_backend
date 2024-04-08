@@ -156,6 +156,8 @@ export class EventsService {
           });
 
         if (codeStatus === 1) {
+          console.log(req.req.user);
+
           //GENERATE TICKET CODE
           tickets.map((ticket) => {
             for (let i = 0; i < ticket.quantity; i++) {
@@ -193,9 +195,10 @@ export class EventsService {
         message: 'Allez dans votre profil pour telecharger vos tickets',
       };
     } catch (error) {
-      //console.log(error);
-
-      return { message: 'Error in generating tickets' };
+      console.log(error);
+      throw new Error(
+        'Error dans generation des tickets, contacter le service client SVP',
+      );
     }
   }
 
@@ -280,7 +283,7 @@ export class EventsService {
 
   async scanTicket(code: string, req: any) {
     const date = new Date();
-    if (req.user.role.name === 'REGULAR') {
+    if (req.req.user.role.name === 'REGULAR') {
       throw new UnauthorizedException(
         "You don't have access to this ressource!",
       );
@@ -314,13 +317,8 @@ export class EventsService {
           };
         }
       } catch (error) {
-        return {
-          status: false,
-          error: {
-            code: '404',
-            message: 'le code n existe pas',
-          },
-        };
+        console.log(error);
+        throw new Error('Le code n existe pas');
       }
     }
   }

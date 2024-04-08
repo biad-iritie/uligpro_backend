@@ -131,7 +131,7 @@ export class UsersService {
           confirmed,
           role: {
             connect: {
-              name: 'Regular',
+              name: 'REGULAR',
             },
           },
         },
