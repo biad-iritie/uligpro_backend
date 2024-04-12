@@ -87,10 +87,11 @@ model Match {
   goal2        Int
   teamIdWinner String?
   eventId      String
-  event        Event   @relation(fields: [eventId], references: [id])
-  team1        Team    @relation("team home", fields: [team1Id], references: [id])
-  team2        Team    @relation("team away", fields: [team2Id], references: [id])
-  teamWinner   Team?   @relation(fields: [teamIdWinner], references: [id])
+  createdAt    DateTime @default(now())
+  event        Event    @relation(fields: [eventId], references: [id])
+  team1        Team     @relation("team home", fields: [team1Id], references: [id])
+  team2        Team     @relation("team away", fields: [team2Id], references: [id])
+  teamWinner   Team?    @relation(fields: [teamIdWinner], references: [id])
 
   @@id([team1Id, team2Id, eventId])
 }

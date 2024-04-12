@@ -7,6 +7,8 @@ import { Event } from './event.entity';
 export class Match {
   @Field()
   time: Date;
+  @Field()
+  createdAt: Date;
 
   @Field()
   team1Id: string;

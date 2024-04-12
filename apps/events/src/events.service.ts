@@ -59,6 +59,9 @@ export class EventsService {
             },
           },
           matches: {
+            orderBy: {
+              createdAt: 'asc',
+            },
             include: {
               team1: true,
               team2: true,
