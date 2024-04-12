@@ -5,22 +5,33 @@ import { Ticket } from './ticket.entity';
 @Directive('@key(fields:"id")')
 export class Transaction {
   @Field(() => ID)
-  id: number;
+  id: string;
 
   @Field()
-  code: string;
+  intendId: string;
+  @Field({ nullable: true })
+  paymentId: string;
 
   @Field()
   amount: number;
 
   @Field()
+  amountWithFee: number;
+  @Field()
+  provider: string;
+  @Field()
+  currency: string;
+  @Field()
+  country: string;
+  @Field()
+  method: string;
+  @Field()
+  intendCreatedAt: Date;
+  @Field({ nullable: true })
+  paidAt: Date;
+
+  @Field()
   debitNumber: string;
-
-  @Field()
-  way: string;
-
-  @Field()
-  didAt: Date;
 
   @Field(() => [Ticket])
   tickets?: Ticket[];

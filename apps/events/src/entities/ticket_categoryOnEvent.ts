@@ -8,9 +8,9 @@ export class Ticket_categoryOnEvent {
   @Field(() => Event)
   event: Event;
   @Field()
-  eventId: number;
+  eventId: string;
   @Field()
-  ticket_categoryId: number;
+  ticket_categoryId: string;
 
   @Field(() => Ticket_category)
   ticket_category: Ticket_category;

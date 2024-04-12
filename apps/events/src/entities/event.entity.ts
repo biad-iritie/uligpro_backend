@@ -7,7 +7,7 @@ import { Venue } from './venue.entity';
 @Directive('@key(fields:"id")')
 export class Event {
   @Field(() => ID)
-  id: number;
+  id: string;
 
   @Field()
   name: string;
@@ -25,7 +25,7 @@ export class Event {
   display: boolean;
 
   @Field()
-  evenueId: number;
+  evenueId: string;
 
   @Field(() => Venue)
   venue?: Venue;

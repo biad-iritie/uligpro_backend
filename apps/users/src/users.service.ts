@@ -20,7 +20,7 @@ interface userData {
   password: string;
   tel: string;
   confirmed: boolean;
-  roleId?: string;
+  role?: string;
 }
 
 @Injectable()
@@ -84,7 +84,7 @@ export class UsersService {
   }
   //create activation token
   async createActivationToken(user: userData) {
-    const code = Math.floor(1000 + Math.random() * 9000).toString();
+    const code = Math.floor(10000 + Math.random() * 9000).toString();
 
     const token = this.jwtService.sign(
       {
@@ -115,14 +115,14 @@ export class UsersService {
       throw new BadRequestException('Le code est incorrect');
     }
 
-    const { name, email, password, tel, confirmed, roleId } = newUser.user;
+    const { name, email, password, tel, confirmed } = newUser.user;
     const existUser = await this.existUser(email, tel);
     if (existUser) {
       throw new BadRequestException('Cet utlisateur existe déjà! ');
     }
 
     try {
-      const user = await this.prisma.user.create({
+      const userCreated = await this.prisma.user.create({
         data: {
           name,
           email,
@@ -138,9 +138,13 @@ export class UsersService {
         include: { role: true },
       });
       const tokenSender = new SendToken(this.configService, this.jwtService);
-      return tokenSender.sendToken(user);
+      return tokenSender.sendToken(userCreated);
     } catch (error) {
-      return {
+      throw new BadRequestException(
+        'Erreur survenue lors de la creation du compte, SVP reessayez plus tard',
+      );
+
+      /* return {
         user: null,
         accessToken: null,
         refreshToken: null,
@@ -148,7 +152,7 @@ export class UsersService {
           message:
             'Erreur survenue lors de la creation du compte, SVP recréer votre compte',
         },
-      };
+      }; */
     }
   }
 

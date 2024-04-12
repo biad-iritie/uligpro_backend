@@ -54,7 +54,7 @@ export class BuyTicketsResponse {
 }
 
 @ObjectType()
-export class ticketScannedResponse {
+export class TicketScannedResponse {
   /* @Field()
   activation_token: string; */
   @Field(() => Boolean)
@@ -70,4 +70,74 @@ export class BasicResponse {
 
   @Field()
   message: string;
+}
+
+@ObjectType()
+export class Fee {
+  @Field()
+  currency: string;
+  @Field()
+  id: string;
+  @Field()
+  label: string;
+  @Field()
+  rate: number;
+  @Field()
+  rateType: string;
+  @Field()
+  amount: number;
+}
+@ObjectType()
+export class Payment {
+  @Field()
+  id: string;
+  @Field()
+  intentId: string;
+  @Field()
+  createdAt: string;
+  @Field()
+  updatedAt: string;
+  @Field()
+  amount: number;
+  @Field()
+  currency: string;
+  @Field()
+  status: string;
+  @Field()
+  method: string;
+  @Field()
+  country: string;
+  @Field()
+  provider: string;
+  @Field()
+  number: string;
+  @Field(() => [Fee])
+  fees?: Fee[];
+}
+@ObjectType()
+export class PaymentIntent {
+  @Field()
+  id: string;
+  @Field()
+  createdAt: Date;
+  @Field()
+  updatedAt: Date;
+  @Field()
+  merchantId: string;
+  @Field()
+  purchaseReference: string;
+  @Field()
+  customerReference: string;
+  @Field()
+  amount: number;
+  @Field()
+  currency: string;
+  @Field()
+  token: string;
+  @Field()
+  status: string;
+  @Field(() => [Payment])
+  payments?: Payment[];
+  @Field()
+  mode: string;
 }

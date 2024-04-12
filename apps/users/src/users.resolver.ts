@@ -63,7 +63,7 @@ export class UsersResolver {
     return await this.usersService.activateUser(activationDto, context.res);
   }
 
-  @Mutation(() => LoginResponse)
+  @Query(() => LoginResponse)
   async login(
     @Args('userInput')
     user: LoginDto,

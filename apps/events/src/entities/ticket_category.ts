@@ -5,7 +5,7 @@ import { Ticket_categoryOnEvent } from './ticket_categoryOnEvent';
 @Directive('@key(fields:"id")')
 export class Ticket_category {
   @Field(() => ID)
-  id: number;
+  id: string;
 
   @Field()
   name: string;

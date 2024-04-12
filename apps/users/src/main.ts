@@ -6,6 +6,7 @@ import { UsersModule } from './users.module';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(UsersModule);
+  app.enableCors();
   app.useGlobalPipes(new ValidationPipe());
   app.useStaticAssets(join(__dirname, '..', 'public'));
   app.setBaseViewsDir(join(__dirname, '..', 'gateway/email-templates'));

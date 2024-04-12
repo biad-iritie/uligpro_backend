@@ -9,13 +9,13 @@ export class Match {
   time: Date;
 
   @Field()
-  team1Id: number;
+  team1Id: string;
 
   @Field(() => Team)
   team1: Team;
 
   @Field()
-  team2Id: number;
+  team2Id: string;
 
   @Field(() => Team)
   team2: Team;
@@ -32,10 +32,10 @@ export class Match {
   teamWinner?: Team;
 
   @Field()
-  teamIdWinner?: number;
+  teamIdWinner?: string;
 
   @Field()
-  eventId: number;
+  eventId: string;
 
   @Field(() => Event)
   event: Event;

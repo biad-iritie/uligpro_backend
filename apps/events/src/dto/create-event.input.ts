@@ -29,8 +29,8 @@ export class TransactionInput {
   code: string; */
 
   @Field(() => Int)
-  //@IsNotEmpty({ message: 'Select an amount' })
-  amount?: number = 0;
+  @IsNotEmpty({ message: 'Select an amount' })
+  amount: number = 0;
 
   @Field(() => String)
   @IsNotEmpty({ message: 'Select a debitNumber' })
@@ -39,7 +39,15 @@ export class TransactionInput {
 
   @Field(() => String)
   @IsNotEmpty({ message: 'Select a way' })
-  way: string;
+  provider: string;
+
+  @Field(() => String)
+  @IsNotEmpty({ message: 'Select a payment method' })
+  paymentMethod: string;
+
+  @Field(() => String, { nullable: true })
+  //@IsNotEmpty({ message: 'Enter OTP' })
+  otp: string = '';
 
   /*  @Field()
   @IsNotEmpty({ message: 'Select a didAt' })

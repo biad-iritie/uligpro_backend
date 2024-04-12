@@ -11,8 +11,9 @@ import {
 } from './dto/create-event.input';
 import { UpdateEventInput } from './dto/update-event.input';
 import { User } from './entities/user.entity';
+import { PaymentIntent } from './types/event.type';
 import { Protect } from './utils/protect';
-const crypto = require('crypto');
+import { Signature } from './utils/signature';
 
 interface storeTicket {
   userId: string;
@@ -95,6 +96,147 @@ export class EventsService {
     }
   }
 
+  async postPaymentIntentsGetToken(
+    transactionInfo: TransactionInput,
+    req: any,
+  ): Promise<PaymentIntent> {
+    const userId: string = req.req.user.id;
+    const present = new Date();
+
+    /* console.log(process.env.HUB2_KEY);
+    console.log(process.env.HUB2_MERCHANT_ID);
+    console.log(process.env.HUB2_ENVIRONMENT);
+
+    console.log(userId);
+    console.log(`${userId}_${present}`); */
+
+    try {
+      const response = await fetch(
+        `${process.env.HUB2SERVER}/payment-intents`,
+        {
+          method: 'POST',
+          headers: {
+            ApiKey: process.env.HUB2_KEY,
+            MerchantId: process.env.HUB2_MERCHANT_ID,
+            Environment: process.env.HUB2_ENVIRONMENT,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            customerReference: userId,
+            purchaseReference: `${userId}_${present}`,
+            amount: transactionInfo.amount,
+            currency: 'XOF',
+          }),
+        },
+      );
+      //console.log(response);
+
+      if (response.ok) {
+        const result = await response.json();
+        //console.log('In ok ');
+        return result;
+      } else {
+        console.log(`HTTP Error: ${response.status}`);
+      }
+    } catch (error) {
+      console.log(error);
+
+      throw new Error('Error Server');
+    }
+  }
+
+  async createWebhook() {
+    const response = await fetch('https://api.hub2.io/webhooks', {
+      method: 'POST',
+      headers: {
+        ApiKey: process.env.HUB2_KEY,
+        MerchantId: process.env.HUB2_MERCHANT_ID,
+        Environment: process.env.HUB2_ENVIRONMENT,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        url: 'https://my.webhook.target',
+        events: ['payment.created', 'payment_intent.created'],
+        description:
+          'This is a webhook trigger upon payment & payment_intent creation',
+        metadata: {},
+      }),
+    });
+    if (response.ok) {
+      const result = await response.json();
+      console.log('Webook !!!');
+
+      console.log(result);
+    } else {
+      console.log(`HTTP Error: ${response.status}`);
+    }
+  }
+  async postPaymentIntents(transactionInfo: TransactionInput, req: any) {
+    try {
+      const paymentIntent = await this.postPaymentIntentsGetToken(
+        transactionInfo,
+        req,
+      );
+      /* console.log(paymentIntent.token);
+      console.log(transactionInfo.paymentMethod);
+      console.log(transactionInfo.provider);
+      console.log(transactionInfo.debitNumber);
+      console.log(transactionInfo?.otp); */
+
+      const response = await fetch(
+        `${process.env.HUB2SERVER}/payment-intents/${paymentIntent.id}/payments`,
+        {
+          mode: 'cors',
+          method: 'POST',
+          headers: {
+            ApiKey: process.env.HUB2_KEY,
+            MerchantId: process.env.HUB2_MERCHANT_ID,
+            Environment: process.env.HUB2_ENVIRONMENT,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            token: paymentIntent.token,
+            paymentMethod: transactionInfo.paymentMethod,
+            country: 'CI',
+            provider: transactionInfo.provider,
+            mobileMoney: {
+              msisdn: transactionInfo.debitNumber,
+              otp: transactionInfo?.otp,
+            },
+          }),
+        },
+      );
+      //console.log(response);
+
+      if (response.ok) {
+        const result = await response.json();
+        //console.log(result);
+
+        await this.prisma.transaction.create({
+          data: {
+            intendId: result.id,
+            paymentId: result.payments[0].id,
+            amount: result.amount,
+            amountWithFee: result.payments[0].amount,
+            provider: result.payments[0].provider,
+            debitNumber: result.payments[0].number,
+            currency: result.payments[0].currency,
+            country: result.payments[0].country,
+            method: result.payments[0].method,
+            intendCreatedAt: result.createdAt,
+            status: result.status,
+          },
+        });
+        this.createWebhook();
+        return result;
+      } else {
+        console.log(`HTTP Error: ${response.status}`);
+      }
+    } catch (error) {
+      throw new Error('Error Server');
+    }
+  }
+
   async generateTickets(
     tickets: buyTicketsEventInput[],
     transaction: TransactionInput,
@@ -152,7 +294,7 @@ export class EventsService {
           await this.facking_paymentAPI({
             amount: transaction.amount,
             debitNumber: transaction.debitNumber,
-            way: transaction.way,
+            way: transaction.paymentMethod,
           });
 
         if (codeStatus === 1) {
@@ -170,7 +312,7 @@ export class EventsService {
             }
           });
 
-          await this.prisma.transaction.create({
+          /* await this.prisma.transaction.create({
             data: {
               code: code,
               amount: amount,
@@ -183,7 +325,7 @@ export class EventsService {
                 },
               },
             },
-          });
+          }) */
         } else {
           throw new Error(
             'La transaction a echoué, veillez réesayez plus tard',

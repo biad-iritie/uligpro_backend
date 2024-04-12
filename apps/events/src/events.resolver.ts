@@ -1,6 +1,7 @@
 import { UseGuards } from '@nestjs/common';
 import { Resolver, Query, Mutation, Args, Int, Context } from '@nestjs/graphql';
 import { AuthGuard } from 'apps/users/src/guard/auth.guard';
+import { timeStamp } from 'console';
 
 import {
   buyTicketsEventInput,
@@ -16,7 +17,8 @@ import {
   FindAllResponse,
   BasicResponse,
   TicketsResponse,
-  ticketScannedResponse,
+  TicketScannedResponse,
+  PaymentIntent,
 } from './types/event.type';
 
 @Resolver(() => Event)
@@ -65,6 +67,15 @@ export class EventsResolver {
       context,
     );
   }
+  @Query(() => PaymentIntent)
+  @UseGuards(AuthGuard)
+  async postPaymentIntents(
+    @Context() context: { req: Request },
+    @Args('transaction', { type: () => TransactionInput })
+    transaction: TransactionInput,
+  ): Promise<PaymentIntent> {
+    return await this.eventsService.postPaymentIntents(transaction, context);
+  }
 
   @Query(() => TicketsResponse)
   @UseGuards(AuthGuard)
@@ -81,12 +92,12 @@ export class EventsResolver {
     return await this.eventsService.generateQRCode(code);
   }
 
-  @Mutation(() => ticketScannedResponse, { name: 'getTicketScanned' })
+  @Mutation(() => TicketScannedResponse, { name: 'getTicketScanned' })
   @UseGuards(AuthGuard)
   async scanTicket(
     @Args('code', { type: () => String }) code: string,
     @Context() context: { req: Request },
-  ): Promise<ticketScannedResponse> {
+  ): Promise<TicketScannedResponse> {
     return await this.eventsService.scanTicket(code, context);
   }
 

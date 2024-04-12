@@ -5,7 +5,7 @@ import { Match } from './match.entity';
 @Directive('@key(fields:"id")')
 export class Team {
   @Field(() => ID)
-  id: number;
+  id: string;
 
   @Field()
   name: string;
