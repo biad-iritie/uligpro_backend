@@ -33,7 +33,7 @@ export class SendToken {
         expiresIn: this.config.get<string>('DURATION_REFRESH_TOKEN'),
       },
     );
-    console.log(user);
+    //console.log(user);
     return {
       user,
       accessToken,

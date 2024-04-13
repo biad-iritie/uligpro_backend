@@ -9,11 +9,11 @@ import { UpdateUserInput } from './dto/update-user.input';
 import { Response } from 'express';
 import { PrismaService } from '../../../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
-import { JwtService, JwtVerifyOptions } from '@nestjs/jwt';
+import { JsonWebTokenError, JwtService, JwtVerifyOptions } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { EmailService } from './email/email.service';
 import { SendToken } from './utlis/sendToken';
-
+const sgMail = require('@sendgrid/mail');
 interface userData {
   name: string;
   email: string;
@@ -57,13 +57,38 @@ export class UsersService {
     const activationCode = activation.code;
     const activationToken = activation.token;
 
-    this.emailService.sendMail({
+    /* this.emailService.sendMail({
       email,
       subject: 'Active ton compte ULigPro',
       template: './activation-mail',
       name,
       activationCode,
-    });
+    }); */
+    try {
+      sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+      const msg = {
+        to: email, // Change to your recipient
+        from: 'it_uligpro@benikservices.com', // Change to your verified sender
+        subject: 'Sending with SendGrid is Fun',
+        template_id: 'd-031038646d7347bb98a15ea6cfca596b',
+        dynamic_template_data: {
+          name: name,
+          activationCode: activationCode,
+        },
+        //html: '<strong>and easy to do anywhere, even with Node.js</strong>',
+      };
+      sgMail
+        .send(msg)
+        .then(() => {
+          console.log('Email sent');
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+      //console.log(emailStatut);
+    } catch (error) {
+      console.log(error);
+    }
 
     return { activationToken, response };
   }
