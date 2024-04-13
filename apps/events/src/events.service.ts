@@ -463,7 +463,7 @@ export class EventsService {
         }
       } catch (error) {
         console.log(error);
-        throw new Error('Le code n existe pas');
+        throw new Error("Le code n'existe pas");
       }
     }
   }
