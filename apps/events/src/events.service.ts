@@ -43,11 +43,11 @@ export class EventsService {
         },
         where: {
           AND: [
-            {
+            /* {
               date: {
                 gt: yesterday,
               },
-            },
+            }, */
             { display: true },
           ],
         },
