@@ -98,16 +98,16 @@ model Match {
 
 model Transaction {
   id              String    @id @default(uuid()) @map("_id")
-  intendId        String    @unique
+  intendId        String?   @unique
   paymentId       String?
   amount          Int
-  amountWithFee   Int
-  provider        String
-  debitNumber     String
-  currency        String
-  country         String
-  method          String
-  intendCreatedAt DateTime
+  amountWithFee   Int?
+  provider        String?
+  debitNumber     String?
+  currency        String    @default("XOF")
+  country         String    @default("CI")
+  method          String?
+  intendCreatedAt DateTime  @default(now())
   paidAt          DateTime?
   status          String
   tickets         Ticket[]

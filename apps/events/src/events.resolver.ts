@@ -1,10 +1,11 @@
-import { UseGuards } from '@nestjs/common';
+import { HttpCode, HttpStatus, Res, UseGuards } from '@nestjs/common';
 import { Resolver, Query, Mutation, Args, Int, Context } from '@nestjs/graphql';
 import { AuthGuard } from 'apps/users/src/guard/auth.guard';
 import { timeStamp } from 'console';
 
 import {
   buyTicketsEventInput,
+  Hub2DataFormat,
   TransactionInput,
 } from './dto/create-event.input';
 import { UpdateEventInput } from './dto/update-event.input';
@@ -18,7 +19,7 @@ import {
   BasicResponse,
   TicketsResponse,
   TicketScannedResponse,
-  PaymentIntent,
+  PaymentResponse,
 } from './types/event.type';
 
 @Resolver(() => Event)
@@ -42,7 +43,7 @@ export class EventsResolver {
     return await this.eventsService.findOne(id);
   }
 
-  @Query(() => Int)
+  /*   @Query(() => Int)
   @UseGuards(AuthGuard)
   async getPurchaseAmount(
     @Args('tickets', { type: () => [buyTicketsEventInput] })
@@ -50,24 +51,29 @@ export class EventsResolver {
     @Context() context: { req: Request },
   ) {
     return await this.eventsService.getPurchaseAmount(tickets, context);
-  }
+  } */
 
-  @Mutation(() => BasicResponse)
+  @Mutation(() => PaymentResponse)
   @UseGuards(AuthGuard)
   async buyTickets(
     @Args('tickets', { type: () => [buyTicketsEventInput] })
     tickets: buyTicketsEventInput[],
     @Context() context: { req: Request },
-    @Args('transaction', { type: () => TransactionInput })
-    transaction: TransactionInput,
-  ) {
-    return await this.eventsService.generateTickets(
-      tickets,
-      transaction,
-      context,
-    );
+    /* @Args('transaction', { type: () => TransactionInput })
+    transaction: TransactionInput, */
+  ): Promise<PaymentResponse> {
+    return await this.eventsService.generateTickets(tickets, context);
   }
-  @Query(() => PaymentIntent)
+  @Mutation(() => String)
+  @UseGuards(AuthGuard)
+  async actionAfterPayment(
+    @Args('idTransaction', { type: () => String }) idTransaction: string,
+    /* @Args('transaction', { type: () => TransactionInput })
+    transaction: TransactionInput, */
+  ): Promise<String> {
+    return await this.eventsService.actionAfterPayment(idTransaction);
+  }
+  /*   @Query(() => PaymentIntent)
   @UseGuards(AuthGuard)
   async postPaymentIntents(
     @Context() context: { req: Request },
@@ -75,7 +81,7 @@ export class EventsResolver {
     transaction: TransactionInput,
   ): Promise<PaymentIntent> {
     return await this.eventsService.postPaymentIntents(transaction, context);
-  }
+  } */
 
   @Query(() => TicketsResponse)
   @UseGuards(AuthGuard)
@@ -100,6 +106,14 @@ export class EventsResolver {
   ): Promise<TicketScannedResponse> {
     return await this.eventsService.scanTicket(code, context);
   }
+
+  /*   @Mutation(() => String)
+  //@HttpCode(200)
+  async getCinetPayLink(
+    @Context() context: { req: Request },
+  ): Promise<PaymentIntent> {
+    return await this.eventsService.getCinetPayLink(transaction, req);
+  } */
 
   @Query(() => Event, { name: 'event' })
   findOne(@Args('id', { type: () => String }) id: string) {

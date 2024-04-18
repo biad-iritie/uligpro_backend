@@ -27,7 +27,6 @@ export class TransactionInput {
   /* @Field(() => String)
   @IsNotEmpty({ message: 'Select an event' })
   code: string; */
-
   @Field(() => Int)
   @IsNotEmpty({ message: 'Select an amount' })
   amount: number = 0;
@@ -43,13 +42,77 @@ export class TransactionInput {
 
   @Field(() => String)
   @IsNotEmpty({ message: 'Select a payment method' })
-  paymentMethod: string;
+  method: string;
 
   @Field(() => String, { nullable: true })
   //@IsNotEmpty({ message: 'Enter OTP' })
   otp: string = '';
 
-  /*  @Field()
+  @Field()
   @IsNotEmpty({ message: 'Select a didAt' })
-  didAt: Date; */
+  didAt: Date;
+}
+
+@InputType()
+export class Fee {
+  @Field()
+  currency: string;
+  @Field()
+  id: string;
+  @Field()
+  label: string;
+  @Field()
+  rate: number;
+  @Field()
+  rateType: string;
+  @Field()
+  amount: number;
+}
+@InputType()
+export class Hub2Data {
+  @Field()
+  id: string;
+  @Field()
+  intentId: string;
+  @Field()
+  createdAt: string;
+  @Field()
+  updatedAt: string;
+  @Field()
+  amount: number;
+  @Field()
+  currency: string;
+  @Field()
+  status: string;
+  @Field()
+  method: string;
+  @Field()
+  country: string;
+  @Field()
+  provider: string;
+  @Field()
+  number: string;
+  @Field(() => [Fee])
+  fees?: Fee[];
+}
+
+@InputType()
+export class Hub2DataFormat {
+  @Field(() => String)
+  owner: String;
+
+  @Field(() => String)
+  type: String;
+
+  @Field(() => Hub2Data)
+  data: Hub2Data;
+
+  @Field(() => Boolean)
+  test: boolean;
+
+  @Field(() => String)
+  id: String;
+
+  @Field(() => Date)
+  createdAt: string;
 }

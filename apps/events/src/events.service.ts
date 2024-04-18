@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Body, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { randomInt, randomUUID } from 'crypto';
 import { throwError } from 'rxjs';
@@ -75,6 +75,10 @@ export class EventsService {
     }
   }
 
+  /*   async getCinetPayLink(req: any) {
+    return 'ok';
+  } */
+
   async findOne(id: string) {
     try {
       const tickets = this.prisma.ticket_categoryOnEvent.findMany({
@@ -99,19 +103,14 @@ export class EventsService {
     }
   }
 
-  async postPaymentIntentsGetToken(
+  /* async postPaymentIntentsGetToken(
     transactionInfo: TransactionInput,
     req: any,
   ): Promise<PaymentIntent> {
     const userId: string = req.req.user.id;
     const present = new Date();
 
-    /* console.log(process.env.HUB2_KEY);
-    console.log(process.env.HUB2_MERCHANT_ID);
-    console.log(process.env.HUB2_ENVIRONMENT);
-
-    console.log(userId);
-    console.log(`${userId}_${present}`); */
+  
 
     try {
       const response = await fetch(
@@ -132,11 +131,9 @@ export class EventsService {
           }),
         },
       );
-      //console.log(response);
 
       if (response.ok) {
         const result = await response.json();
-        //console.log('In ok ');
         return result;
       } else {
         console.log(`HTTP Error: ${response.status}`);
@@ -146,47 +143,20 @@ export class EventsService {
 
       throw new Error('Error Server');
     }
-  }
+  } */
 
-  async createWebhook() {
-    const response = await fetch('https://api.hub2.io/webhooks', {
-      method: 'POST',
-      headers: {
-        ApiKey: process.env.HUB2_KEY,
-        MerchantId: process.env.HUB2_MERCHANT_ID,
-        Environment: process.env.HUB2_ENVIRONMENT,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        url: 'https://my.webhook.target',
-        events: ['payment.created', 'payment_intent.created'],
-        description:
-          'This is a webhook trigger upon payment & payment_intent creation',
-        metadata: {},
-      }),
-    });
-    if (response.ok) {
-      const result = await response.json();
-      console.log('Webook !!!');
-
-      console.log(result);
-    } else {
-      console.log(`HTTP Error: ${response.status}`);
-    }
-  }
   async postPaymentIntents(transactionInfo: TransactionInput, req: any) {
     try {
-      const paymentIntent = await this.postPaymentIntentsGetToken(
+      /*const paymentIntent = await this.postPaymentIntentsGetToken(
         transactionInfo,
         req,
       );
-      /* console.log(paymentIntent.token);
+      console.log(paymentIntent.token);
       console.log(transactionInfo.paymentMethod);
       console.log(transactionInfo.provider);
       console.log(transactionInfo.debitNumber);
       console.log(transactionInfo?.otp); */
-
-      const response = await fetch(
+      /* const response = await fetch(
         `${process.env.HUB2SERVER}/payment-intents/${paymentIntent.id}/payments`,
         {
           mode: 'cors',
@@ -208,10 +178,9 @@ export class EventsService {
             },
           }),
         },
-      );
+      ); */
       //console.log(response);
-
-      if (response.ok) {
+      /*if (response.ok) {
         const result = await response.json();
         //console.log(result);
 
@@ -229,24 +198,55 @@ export class EventsService {
             intendCreatedAt: result.createdAt,
             status: result.status,
           },
-        });
-        this.createWebhook();
+        }); 
+        //this.createWebhook();
         return result;
       } else {
         console.log(`HTTP Error: ${response.status}`);
-      }
+      }*/
     } catch (error) {
       throw new Error('Error Server');
     }
   }
 
-  async generateTickets(
-    tickets: buyTicketsEventInput[],
-    transaction: TransactionInput,
-    req: any,
-  ) {
-    var storeTickets: storeTicket[] = [];
+  async initiatingPayment(amount: number, transaction_id: string) {
+    try {
+      const response = await fetch(`${process.env.CINETPAY_URL}/payment`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          apikey: process.env.API_KEY_CINETPAY,
+          site_id: process.env.SITE_ID,
+          transaction_id: transaction_id,
+          amount: amount,
+          currency: 'XOF',
+          description: ' TEST INTEGRATION ',
+          notify_url: process.env.ONLINE_SERVER_GATEWAY,
+          return_url: `http://localhost:3000/?id=${transaction_id}`,
+          channels: 'ALL',
+        }),
+      });
+      if (response.ok) {
+        return await response.json();
+      }
+    } catch (error) {
+      console.log('initiatingPayment');
+      console.log(error);
+      throw new Error("Desolé error dans le processus d'achat");
+    }
+  }
 
+  async generateTickets(tickets: buyTicketsEventInput[], req: any) {
+    var storeTickets: storeTicket[] = [];
+    const userId: string = req.req.user.id;
+    const present = new Date().getTime();
+    const transaction_id = `${userId}_${present}`;
+
+    let code: string;
+    let payment_url: string;
+    let payment_token: string;
     try {
       await this.prisma.$transaction(async (tx) => {
         // check the remaining tickets
@@ -290,24 +290,34 @@ export class EventsService {
         }
 
         // Get the actual purchase amount
-        transaction.amount = await this.getPurchaseAmount(tickets, req);
+        const amountTickets: number = await this.getPurchaseAmount(
+          tickets,
+          req,
+        );
 
         // connecting with the API payment
-        const { codeStatus, code, amount, debit_number, way, didAt }: any =
+        /* const { codeStatus, code, amount, debit_number, way, didAt }: any =
           await this.facking_paymentAPI({
             amount: transaction.amount,
             debitNumber: transaction.debitNumber,
-            way: transaction.paymentMethod,
-          });
+            way: transaction.method,
+          }); */
 
-        if (codeStatus === 1) {
-          console.log(req.req.user);
-
+        const initPayment = await this.initiatingPayment(
+          amountTickets,
+          transaction_id,
+        );
+        code = initPayment.code;
+        payment_url = initPayment.data.payment_url;
+        payment_token = initPayment.data.payment_token;
+        console.log(initPayment);
+        console.log(initPayment.message);
+        if (initPayment?.code === '201') {
           //GENERATE TICKET CODE
           tickets.map((ticket) => {
             for (let i = 0; i < ticket.quantity; i++) {
               storeTickets.push({
-                userId: req.req.user.id,
+                userId: userId,
                 eventId: ticket.eventId,
                 ticket_categoryId: ticket.ticket_categoryId,
                 code: crypto.randomUUID(),
@@ -315,29 +325,28 @@ export class EventsService {
             }
           });
 
-          /* await this.prisma.transaction.create({
+          await this.prisma.transaction.create({
             data: {
-              code: code,
-              amount: amount,
-              debitNumber: debit_number,
-              way: way,
-              didAt: didAt,
+              paymentId: transaction_id,
+              amount: amountTickets,
+              status: initPayment.message,
               tickets: {
                 createMany: {
                   data: storeTickets,
                 },
               },
             },
-          }) */
+          });
         } else {
           throw new Error(
-            'La transaction a echoué, veillez réesayez plus tard',
+            'Svp ressayez plus tard, soucis au niveau du server !',
           );
         }
       });
-
       return {
-        message: 'Allez dans votre profil pour telecharger vos tickets',
+        code: code,
+        payment_url: payment_url,
+        payment_token: payment_token,
       };
     } catch (error) {
       console.log(error);
@@ -345,6 +354,29 @@ export class EventsService {
         'Error dans generation des tickets, contacter le service client SVP',
       );
     }
+  }
+
+  async actionAfterPayment(idTransaction: String) {
+    try {
+      const response = await fetch(
+        'https://api-checkout.cinetpay.com/v2/payment/check',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            apikey: process.env.REACT_APP_API_KEY_CINETPAY,
+            site_id: process.env.REACT_APP_SITE_ID,
+            transaction_id: transaction_id,
+          }),
+        },
+      );
+      if (response.ok) {
+        return response.json();
+      }
+    } catch (error) {}
+    return { message: 'SUCCESS' };
   }
 
   async facking_paymentAPI(data: {

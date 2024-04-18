@@ -64,6 +64,20 @@ export class TicketScannedResponse {
 }
 
 @ObjectType()
+export class PaymentResponse {
+  /* @Field()
+  activation_token: string; */
+  @Field(() => String)
+  code: string;
+  @Field(() => String)
+  payment_url?: string;
+  @Field(() => String)
+  payment_token?: string;
+
+  @Field(() => ErrorType, { nullable: true })
+  error?: ErrorType;
+}
+@ObjectType()
 export class BasicResponse {
   /* @Field()
   activation_token: string; */
