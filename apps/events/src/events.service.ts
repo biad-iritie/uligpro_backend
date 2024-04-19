@@ -345,7 +345,7 @@ export class EventsService {
           }
         },
         {
-          timeout: 7000,
+          timeout: 10000,
         },
       );
       return {
