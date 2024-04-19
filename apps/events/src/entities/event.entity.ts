@@ -22,6 +22,9 @@ export class Event {
   updatedAt: Date;
 
   @Field()
+  onSell: boolean;
+
+  @Field()
   display: boolean;
 
   @Field()

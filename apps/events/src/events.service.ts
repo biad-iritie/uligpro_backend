@@ -224,7 +224,7 @@ export class EventsService {
           currency: 'XOF',
           description: ' TEST INTEGRATION ',
           notify_url: process.env.ONLINE_SERVER_GATEWAY,
-          return_url: `http://localhost:3000/?id=${transaction_id}`,
+          return_url: `https://uligpro.com/?id=${transaction_id}`,
           channels: 'ALL',
         }),
       });

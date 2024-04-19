@@ -43,6 +43,7 @@ model Event {
   createdAt              DateTime                 @default(now())
   updatedAt              DateTime?
   evenueId               String
+  onSell                 Boolean                  @default(false)
   display                Boolean                  @default(false)
   venue                  Venue                    @relation(fields: [evenueId], references: [id])
   matches                Match[]
