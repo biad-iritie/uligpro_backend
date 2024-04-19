@@ -219,7 +219,7 @@ export class EventsService {
           transaction_id: transaction_id,
           amount: amount,
           currency: 'XOF',
-          description: ' TEST INTEGRATION ',
+          description: ' Achat de ticket(s)',
           notify_url: process.env.ONLINE_SERVER_GATEWAY,
           return_url: `https://uligpro.com/?id=${transaction_id}`,
           channels: 'ALL',
@@ -370,6 +370,9 @@ export class EventsService {
   }
 
   async checkPayment(idTransaction: string) {
+    var fs = require('fs');
+    const path = join(__dirname, '../../../', '/logs');
+
     try {
       const response = await fetch(
         `${process.env.CINETPAY_URL}/payment/check`,
@@ -391,6 +394,9 @@ export class EventsService {
         return await response.json();
       }
     } catch (error) {
+      let writeStream = fs.createWriteStream(`${path}/log1.txt`);
+      writeStream.write(error);
+      writeStream.end();
       console.log(error);
     }
   }
@@ -399,7 +405,7 @@ export class EventsService {
       const result = await this.checkPayment(idTransaction);
       //console.log(result);
 
-      if (result.code === '00') {
+      /* if (result.code === '00') {
         //good
         await this.prisma.transaction.update({
           where: {
@@ -447,7 +453,8 @@ export class EventsService {
         }
 
         return { message: 'FAILLED' };
-      }
+      } */
+      return { message: 'FAILLED' };
     } catch (error) {
       console.log(error);
     }
