@@ -236,6 +236,10 @@ export class EventsService {
   }
 
   async generateTickets(tickets: buyTicketsEventInput[], req: any) {
+    var fs = require('fs');
+    //console.log(join(__dirname, '../../../', '/logs'));
+    const path = join(__dirname, '../../../', '/logs');
+
     var storeTickets: storeTicket[] = [];
     const userId: string = req.req.user.id;
     const present = new Date().getTime();
@@ -351,8 +355,6 @@ export class EventsService {
         payment_token: payment_token,
       };
     } catch (error) {
-      var fs = require('fs');
-      const path = join(__dirname, '..', 'gateway/logs');
       var writeStream = fs.createWriteStream(`${path}/log_${present}.txt`);
       writeStream.write(error);
       writeStream.end();
@@ -365,8 +367,6 @@ export class EventsService {
 
   async checkPayment(idTransaction: string) {
     try {
-      console.log(idTransaction);
-
       const response = await fetch(
         `${process.env.CINETPAY_URL}/payment/check`,
         {
