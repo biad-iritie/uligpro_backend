@@ -248,101 +248,106 @@ export class EventsService {
     let payment_url: string;
     let payment_token: string;
     try {
-      await this.prisma.$transaction(async (tx) => {
-        // check the remaining tickets
-        const remainingTickets = await tx.ticket_categoryOnEvent.findMany({
-          where: {
-            eventId: tickets[0].eventId,
-          },
-        });
-
-        tickets.map((ticket) => {
-          remainingTickets.map((remaining) => {
-            if (remaining.ticket_categoryId == ticket.ticket_categoryId) {
-              //check if number of ticket purchasing it not more the remainning
-              const nbr_check =
-                remaining.capacity - remaining.ticket_sold - ticket.quantity;
-              if (nbr_check < 0) {
-                throw new Error(
-                  'Le nombre ticket demandé est superieur au ticket disponible, veillez reduire SVP',
-                );
-              }
-            }
-          });
-        });
-
-        //INCREMENT SOLD_TICKET
-
-        for (let i = 0; i < tickets.length; i++) {
-          const modified = await tx.ticket_categoryOnEvent.update({
+      await this.prisma.$transaction(
+        async (tx) => {
+          // check the remaining tickets
+          const remainingTickets = await tx.ticket_categoryOnEvent.findMany({
             where: {
-              eventId_ticket_categoryId: {
-                eventId: tickets[i].eventId,
-                ticket_categoryId: tickets[i].ticket_categoryId,
-              },
-            },
-            data: {
-              ticket_sold: {
-                increment: tickets[i].quantity,
-              },
+              eventId: tickets[0].eventId,
             },
           });
-        }
 
-        // Get the actual purchase amount
-        const amountTickets: number = await this.getPurchaseAmount(
-          tickets,
-          req,
-        );
+          tickets.map((ticket) => {
+            remainingTickets.map((remaining) => {
+              if (remaining.ticket_categoryId == ticket.ticket_categoryId) {
+                //check if number of ticket purchasing it not more the remainning
+                const nbr_check =
+                  remaining.capacity - remaining.ticket_sold - ticket.quantity;
+                if (nbr_check < 0) {
+                  throw new Error(
+                    'Le nombre ticket demandé est superieur au ticket disponible, veillez reduire SVP',
+                  );
+                }
+              }
+            });
+          });
 
-        // connecting with the API payment
-        /* const { codeStatus, code, amount, debit_number, way, didAt }: any =
+          //INCREMENT SOLD_TICKET
+
+          for (let i = 0; i < tickets.length; i++) {
+            const modified = await tx.ticket_categoryOnEvent.update({
+              where: {
+                eventId_ticket_categoryId: {
+                  eventId: tickets[i].eventId,
+                  ticket_categoryId: tickets[i].ticket_categoryId,
+                },
+              },
+              data: {
+                ticket_sold: {
+                  increment: tickets[i].quantity,
+                },
+              },
+            });
+          }
+
+          // Get the actual purchase amount
+          const amountTickets: number = await this.getPurchaseAmount(
+            tickets,
+            req,
+          );
+
+          // connecting with the API payment
+          /* const { codeStatus, code, amount, debit_number, way, didAt }: any =
           await this.facking_paymentAPI({
             amount: transaction.amount,
             debitNumber: transaction.debitNumber,
             way: transaction.method,
           }); */
 
-        const initPayment = await this.initiatingPayment(
-          amountTickets,
-          transaction_id,
-        );
-        code = initPayment.code;
-        payment_url = initPayment.data.payment_url;
-        payment_token = initPayment.data.payment_token;
-        console.log(initPayment);
-        console.log(initPayment.message);
-        if (initPayment?.code === '201') {
-          //GENERATE TICKET CODE
-          tickets.map((ticket) => {
-            for (let i = 0; i < ticket.quantity; i++) {
-              storeTickets.push({
-                userId: userId,
-                eventId: ticket.eventId,
-                ticket_categoryId: ticket.ticket_categoryId,
-                code: crypto.randomUUID(),
-              });
-            }
-          });
+          const initPayment = await this.initiatingPayment(
+            amountTickets,
+            transaction_id,
+          );
+          code = initPayment.code;
+          payment_url = initPayment.data.payment_url;
+          payment_token = initPayment.data.payment_token;
+          //console.log(initPayment);
+          //console.log(initPayment.message);
+          if (initPayment?.code === '201') {
+            //GENERATE TICKET CODE
+            tickets.map((ticket) => {
+              for (let i = 0; i < ticket.quantity; i++) {
+                storeTickets.push({
+                  userId: userId,
+                  eventId: ticket.eventId,
+                  ticket_categoryId: ticket.ticket_categoryId,
+                  code: crypto.randomUUID(),
+                });
+              }
+            });
 
-          await this.prisma.transaction.create({
-            data: {
-              paymentId: transaction_id,
-              amount: amountTickets,
-              status: initPayment.message,
-              tickets: {
-                createMany: {
-                  data: storeTickets,
+            await this.prisma.transaction.create({
+              data: {
+                id: transaction_id,
+                amount: amountTickets,
+                status: initPayment.message,
+                tickets: {
+                  createMany: {
+                    data: storeTickets,
+                  },
                 },
               },
-            },
-          });
-        } else {
-          throw new Error(
-            'Svp ressayez plus tard, soucis au niveau du server !',
-          );
-        }
-      });
+            });
+          } else {
+            throw new Error(
+              'Svp ressayez plus tard, soucis au niveau du server !',
+            );
+          }
+        },
+        {
+          timeout: 7000,
+        },
+      );
       return {
         code: code,
         payment_url: payment_url,
@@ -356,27 +361,90 @@ export class EventsService {
     }
   }
 
-  async actionAfterPayment(idTransaction: String) {
+  async checkPayment(idTransaction: string) {
     try {
+      console.log(idTransaction);
+
       const response = await fetch(
-        'https://api-checkout.cinetpay.com/v2/payment/check',
+        `${process.env.CINETPAY_URL}/payment/check`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            apikey: process.env.REACT_APP_API_KEY_CINETPAY,
-            site_id: process.env.REACT_APP_SITE_ID,
-            transaction_id: transaction_id,
+            apikey: process.env.API_KEY_CINETPAY,
+            site_id: process.env.SITE_ID,
+            transaction_id: idTransaction,
           }),
         },
       );
+      console.log(response);
+
       if (response.ok) {
-        return response.json();
+        return await response.json();
       }
-    } catch (error) {}
-    return { message: 'SUCCESS' };
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async actionAfterPayment(idTransaction: string) {
+    try {
+      const result = await this.checkPayment(idTransaction);
+      //console.log(result);
+
+      if (result.code === '00') {
+        //good
+        await this.prisma.transaction.update({
+          where: {
+            id: idTransaction,
+          },
+          data: {
+            status: 'SUCCESS',
+            paidAt: result.data.payment_date,
+            method: result.data.payment_method,
+            provider: result.data.operator_id,
+            tickets: {
+              updateMany: {
+                where: {
+                  transactionId: idTransaction,
+                },
+                data: {
+                  valid: true,
+                },
+              },
+            },
+          },
+        });
+        return { message: 'SUCCESS' };
+      } else {
+        const tickets = await this.prisma.ticket.findMany({
+          where: {
+            transactionId: idTransaction,
+          },
+        });
+
+        for (let i = 0; i < tickets.length; i++) {
+          await this.prisma.ticket_categoryOnEvent.updateMany({
+            where: {
+              AND: [
+                { eventId: tickets[i].eventId },
+                { ticket_categoryId: tickets[i].ticket_categoryId },
+              ],
+            },
+            data: {
+              ticket_sold: {
+                decrement: 1,
+              },
+            },
+          });
+        }
+
+        return { message: 'FAILLED' };
+      }
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   async facking_paymentAPI(data: {
@@ -424,7 +492,11 @@ export class EventsService {
 
       const tickets = this.prisma.ticket.findMany({
         where: {
-          AND: [{ userId: req.req.user.id }, { scanned: false }],
+          AND: [
+            { userId: req.req.user.id },
+            { scanned: false },
+            { valid: true },
+          ],
         },
         include: {
           event: {

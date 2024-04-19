@@ -99,7 +99,6 @@ model Match {
 model Transaction {
   id              String    @id @default(uuid()) @map("_id")
   intendId        String?   @unique
-  paymentId       String?
   amount          Int
   amountWithFee   Int?
   provider        String?
@@ -127,6 +126,7 @@ model Ticket {
   scanned           Boolean?        @default(false)
   scannedAt         DateTime?
   createdAt         DateTime?       @default(now())
+  valid             Boolean         @default(false)
   scannedByUserId   String?
   nature            ticketNature    @default(ONLINE)
   event             Event           @relation(fields: [eventId], references: [id])

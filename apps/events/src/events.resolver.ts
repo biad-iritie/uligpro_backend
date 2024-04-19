@@ -64,13 +64,13 @@ export class EventsResolver {
   ): Promise<PaymentResponse> {
     return await this.eventsService.generateTickets(tickets, context);
   }
-  @Mutation(() => String)
+  @Mutation(() => BasicResponse)
   @UseGuards(AuthGuard)
   async actionAfterPayment(
     @Args('idTransaction', { type: () => String }) idTransaction: string,
     /* @Args('transaction', { type: () => TransactionInput })
     transaction: TransactionInput, */
-  ): Promise<String> {
+  ): Promise<BasicResponse> {
     return await this.eventsService.actionAfterPayment(idTransaction);
   }
   /*   @Query(() => PaymentIntent)
