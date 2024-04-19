@@ -1,8 +1,8 @@
 import { Body, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { randomInt, randomUUID } from 'crypto';
-import { throwError } from 'rxjs';
-import { text } from 'stream/consumers';
+import { randomInt } from 'crypto';
+import { join } from 'path';
+
 import { PrismaService } from '../../../prisma/prisma.service';
 import {
   buyTicketsEventInput,
@@ -10,10 +10,7 @@ import {
   TransactionInput,
 } from './dto/create-event.input';
 import { UpdateEventInput } from './dto/update-event.input';
-import { User } from './entities/user.entity';
-import { PaymentIntent } from './types/event.type';
 import { Protect } from './utils/protect';
-import { Signature } from './utils/signature';
 
 interface storeTicket {
   userId: string;
@@ -354,7 +351,12 @@ export class EventsService {
         payment_token: payment_token,
       };
     } catch (error) {
-      console.log(error);
+      var fs = require('fs');
+      const path = join(__dirname, '..', 'gateway/logs');
+      var writeStream = fs.createWriteStream(`${path}/log_${present}.txt`);
+      writeStream.write(error);
+      writeStream.end();
+      //console.log(error);
       throw new Error(
         'Error dans generation des tickets, contacter le service client SVP',
       );
