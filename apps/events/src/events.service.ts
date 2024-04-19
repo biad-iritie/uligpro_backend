@@ -236,9 +236,9 @@ export class EventsService {
   }
 
   async generateTickets(tickets: buyTicketsEventInput[], req: any) {
-    var fs = require('fs');
+    //var fs = require('fs');
     //console.log(join(__dirname, '../../../', '/logs'));
-    const path = join(__dirname, '../../../', '/logs');
+    //const path = join(__dirname, '../../../', '/logs');
 
     var storeTickets: storeTicket[] = [];
     const userId: string = req.req.user.id;
