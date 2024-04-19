@@ -346,15 +346,15 @@ export class EventsService {
           payment_token: initPayment.data.payment_token,
         };
       } else {
-        let writeStream = fs.createWriteStream(`${path}/log_${present}.txt`);
+        /*  let writeStream = fs.createWriteStream(`${path}/log_${present}.txt`);
         writeStream.write('Error when connecting to CinebPay');
-        writeStream.end();
+        writeStream.end(); */
         throw new Error('Svp ressayez plus tard, soucis au niveau du server !');
       }
     } catch (error) {
-      let writeStream = fs.createWriteStream(`${path}/log_${present}.txt`);
+      /* let writeStream = fs.createWriteStream(`${path}/log_${present}.txt`);
       writeStream.write(error);
-      writeStream.end();
+      writeStream.end(); */
       //console.log(error);
       throw new Error(
         'Error dans generation des tickets, contacter le service client SVP',
