@@ -311,13 +311,6 @@ export class EventsService {
               });
             }
 
-            /* code = initPayment.code;
-            payment_url = initPayment.data.payment_url;
-            payment_token = initPayment.data.payment_token; */
-
-            //console.log(initPayment);
-            //console.log(initPayment.message);
-
             //GENERATE TICKET CODE
             tickets.map((ticket) => {
               for (let i = 0; i < ticket.quantity; i++) {
