@@ -245,76 +245,79 @@ export class EventsService {
     const present = new Date().getTime();
     const transaction_id = `${userId}_${present}`;
 
-    let code: string;
+    /* let code: string;
     let payment_url: string;
-    let payment_token: string;
+    let payment_token: string; */
     try {
-      await this.prisma.$transaction(
-        async (tx) => {
-          // check the remaining tickets
-          const remainingTickets = await tx.ticket_categoryOnEvent.findMany({
-            where: {
-              eventId: tickets[0].eventId,
-            },
-          });
+      // Get the actual purchase amount
+      const amountTickets: number = await this.getPurchaseAmount(tickets, req);
 
-          tickets.map((ticket) => {
-            remainingTickets.map((remaining) => {
-              if (remaining.ticket_categoryId == ticket.ticket_categoryId) {
-                //check if number of ticket purchasing it not more the remainning
-                const nbr_check =
-                  remaining.capacity - remaining.ticket_sold - ticket.quantity;
-                if (nbr_check < 0) {
-                  throw new Error(
-                    'Le nombre ticket demandé est superieur au ticket disponible, veillez reduire SVP',
-                  );
-                }
-              }
-            });
-          });
+      // connecting with the API payment
+      /* const { codeStatus, code, amount, debit_number, way, didAt }: any =
+      await this.facking_paymentAPI({
+        amount: transaction.amount,
+        debitNumber: transaction.debitNumber,
+        way: transaction.method,
+      }); */
+      // GET THE URL FOR CHECKOUT
+      const initPayment = await this.initiatingPayment(
+        amountTickets,
+        transaction_id,
+      );
+      //console.log(initPayment);
 
-          //INCREMENT SOLD_TICKET
-
-          for (let i = 0; i < tickets.length; i++) {
-            const modified = await tx.ticket_categoryOnEvent.update({
+      if (initPayment?.code === '201') {
+        await this.prisma.$transaction(
+          async (tx) => {
+            // check the remaining tickets
+            const remainingTickets = await tx.ticket_categoryOnEvent.findMany({
               where: {
-                eventId_ticket_categoryId: {
-                  eventId: tickets[i].eventId,
-                  ticket_categoryId: tickets[i].ticket_categoryId,
-                },
-              },
-              data: {
-                ticket_sold: {
-                  increment: tickets[i].quantity,
-                },
+                eventId: tickets[0].eventId,
               },
             });
-          }
 
-          // Get the actual purchase amount
-          const amountTickets: number = await this.getPurchaseAmount(
-            tickets,
-            req,
-          );
+            tickets.map((ticket) => {
+              remainingTickets.map((remaining) => {
+                if (remaining.ticket_categoryId == ticket.ticket_categoryId) {
+                  //check if number of ticket purchasing it not more the remainning
+                  const nbr_check =
+                    remaining.capacity -
+                    remaining.ticket_sold -
+                    ticket.quantity;
+                  if (nbr_check < 0) {
+                    throw new Error(
+                      'Le nombre ticket demandé est superieur au ticket disponible, veillez reduire SVP',
+                    );
+                  }
+                }
+              });
+            });
 
-          // connecting with the API payment
-          /* const { codeStatus, code, amount, debit_number, way, didAt }: any =
-          await this.facking_paymentAPI({
-            amount: transaction.amount,
-            debitNumber: transaction.debitNumber,
-            way: transaction.method,
-          }); */
+            //INCREMENT SOLD_TICKET
 
-          const initPayment = await this.initiatingPayment(
-            amountTickets,
-            transaction_id,
-          );
-          code = initPayment.code;
-          payment_url = initPayment.data.payment_url;
-          payment_token = initPayment.data.payment_token;
-          //console.log(initPayment);
-          //console.log(initPayment.message);
-          if (initPayment?.code === '201') {
+            for (let i = 0; i < tickets.length; i++) {
+              const modified = await tx.ticket_categoryOnEvent.update({
+                where: {
+                  eventId_ticket_categoryId: {
+                    eventId: tickets[i].eventId,
+                    ticket_categoryId: tickets[i].ticket_categoryId,
+                  },
+                },
+                data: {
+                  ticket_sold: {
+                    increment: tickets[i].quantity,
+                  },
+                },
+              });
+            }
+
+            /* code = initPayment.code;
+            payment_url = initPayment.data.payment_url;
+            payment_token = initPayment.data.payment_token; */
+
+            //console.log(initPayment);
+            //console.log(initPayment.message);
+
             //GENERATE TICKET CODE
             tickets.map((ticket) => {
               for (let i = 0; i < ticket.quantity; i++) {
@@ -339,23 +342,24 @@ export class EventsService {
                 },
               },
             });
-          } else {
-            throw new Error(
-              'Svp ressayez plus tard, soucis au niveau du server !',
-            );
-          }
-        },
-        {
-          timeout: 10000,
-        },
-      );
-      return {
-        code: code,
-        payment_url: payment_url,
-        payment_token: payment_token,
-      };
+          },
+          {
+            timeout: 10000,
+          },
+        );
+        return {
+          code: initPayment.code,
+          payment_url: initPayment.data.payment_url,
+          payment_token: initPayment.data.payment_token,
+        };
+      } else {
+        let writeStream = fs.createWriteStream(`${path}/log_${present}.txt`);
+        writeStream.write('Error when connecting to CinebPay');
+        writeStream.end();
+        throw new Error('Svp ressayez plus tard, soucis au niveau du server !');
+      }
     } catch (error) {
-      var writeStream = fs.createWriteStream(`${path}/log_${present}.txt`);
+      let writeStream = fs.createWriteStream(`${path}/log_${present}.txt`);
       writeStream.write(error);
       writeStream.end();
       //console.log(error);
