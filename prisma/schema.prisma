@@ -122,7 +122,7 @@ model Ticket {
   userId            String
   eventId           String
   transactionId     String
-  code              String          @unique
+  code              String          @unique @default(uuid())
   ticket_categoryId String
   scanned           Boolean?        @default(false)
   scannedAt         DateTime?

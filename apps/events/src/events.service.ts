@@ -1,4 +1,4 @@
-import { Body, Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { randomInt } from 'crypto';
 import { join } from 'path';
@@ -16,7 +16,7 @@ interface storeTicket {
   userId: string;
   eventId: string;
   ticket_categoryId: string;
-  code: string;
+  //code: string;
 }
 
 @Injectable()
@@ -219,7 +219,7 @@ export class EventsService {
           transaction_id: transaction_id,
           amount: amount,
           currency: 'XOF',
-          description: ' Achat de ticket(s)',
+          description: 'Achat de ticket(s)',
           notify_url: process.env.ONLINE_SERVER_GATEWAY,
           return_url: `https://uligpro.com/?id=${transaction_id}`,
           channels: 'ALL',
@@ -227,18 +227,21 @@ export class EventsService {
       });
       if (response.ok) {
         return await response.json();
+      } else {
+        throw new Error(
+          "Desolé error dans le processus d'achat, ressayez plus tard",
+        );
       }
     } catch (error) {
-      console.log('initiatingPayment');
-      console.log(error);
       throw new Error("Desolé error dans le processus d'achat");
     }
   }
 
   async generateTickets(tickets: buyTicketsEventInput[], req: any) {
-    //var fs = require('fs');
+    var fs = require('fs');
     //console.log(join(__dirname, '../../../', '/logs'));
-    //const path = join(__dirname, '../../../', '/logs');
+    const path = join(__dirname, '../../../', '/logs');
+    //console.log(req.req.user);
 
     var storeTickets: storeTicket[] = [];
     const userId: string = req.req.user.id;
@@ -252,13 +255,6 @@ export class EventsService {
       // Get the actual purchase amount
       const amountTickets: number = await this.getPurchaseAmount(tickets, req);
 
-      // connecting with the API payment
-      /* const { codeStatus, code, amount, debit_number, way, didAt }: any =
-      await this.facking_paymentAPI({
-        amount: transaction.amount,
-        debitNumber: transaction.debitNumber,
-        way: transaction.method,
-      }); */
       // GET THE URL FOR CHECKOUT
       const initPayment = await this.initiatingPayment(
         amountTickets,
@@ -266,7 +262,7 @@ export class EventsService {
       );
       //console.log(initPayment);
 
-      if (initPayment?.code === '201') {
+      if (initPayment.code === '201') {
         await this.prisma.$transaction(
           async (tx) => {
             // check the remaining tickets
@@ -318,7 +314,7 @@ export class EventsService {
                   userId: userId,
                   eventId: ticket.eventId,
                   ticket_categoryId: ticket.ticket_categoryId,
-                  code: crypto.randomUUID(),
+                  //code: crypto.randomUUID(),
                 });
               }
             });
@@ -337,7 +333,7 @@ export class EventsService {
             });
           },
           {
-            timeout: 10000,
+            timeout: 15000,
           },
         );
         return {
@@ -346,15 +342,12 @@ export class EventsService {
           payment_token: initPayment.data.payment_token,
         };
       } else {
-        /*  let writeStream = fs.createWriteStream(`${path}/log_${present}.txt`);
-        writeStream.write('Error when connecting to CinebPay');
-        writeStream.end(); */
         throw new Error('Svp ressayez plus tard, soucis au niveau du server !');
       }
     } catch (error) {
-      /* let writeStream = fs.createWriteStream(`${path}/log_${present}.txt`);
-      writeStream.write(error);
-      writeStream.end(); */
+      let writeStream = fs.createWriteStream(`${path}/log_${present}.txt`);
+      writeStream.write(error.message);
+      writeStream.end();
       //console.log(error);
       throw new Error(
         'Error dans generation des tickets, contacter le service client SVP',

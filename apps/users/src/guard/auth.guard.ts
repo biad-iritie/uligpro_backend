@@ -35,13 +35,13 @@ export class AuthGuard implements CanActivate {
 
     if (accessToken) {
       try {
-        const decoded = this.jwtService.verify(accessToken, {
+        const decoded = await this.jwtService.verify(accessToken, {
           secret: this.config.get<string>('ACCESS_TOKEN_SECRET'),
         } as JwtVerifyOptions);
+
         if (!decoded) {
           throw new UnauthorizedException('Invalid access token');
         }
-        //console.log(decoded);
 
         const user = await this.prisma.user.findUnique({
           where: {
@@ -69,7 +69,7 @@ export class AuthGuard implements CanActivate {
   async updateAccessToken(req: any): Promise<void> {
     try {
       const refreshTokenData = req.headers.refreshtoken as string;
-      ////console.log('updateAccessToken');
+      //console.log('updateAccessToken');
 
       const decoded = this.jwtService.verify(refreshTokenData, {
         secret: this.config.get<string>('REFRESH_TOKEN_SECRET'),
