@@ -558,9 +558,11 @@ export class EventsService {
           });
           return { status: true };
         } else {
-          await this.prisma.ticketDoublons.create({
-            data: checked,
-          });
+          if (checked.nature === 'PHYSICAL') {
+            await this.prisma.ticketDoublons.create({
+              data: checked,
+            });
+          }
           return {
             status: false,
             error: {
