@@ -138,3 +138,18 @@ model Ticket {
 
   @@id([eventId, transactionId, code])
 }
+
+model TicketDoublons {
+  id                Int          @id @default(autoincrement())
+  userId            String
+  eventId           String
+  transactionId     String
+  code              String
+  ticket_categoryId String
+  scanned           Boolean
+  scannedAt         DateTime
+  createdAt         DateTime
+  valid             Boolean
+  scannedByUserId   String
+  nature            ticketNature
+}

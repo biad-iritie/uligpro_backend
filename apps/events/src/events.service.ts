@@ -221,10 +221,12 @@ export class EventsService {
           currency: 'XOF',
           description: 'Achat de ticket(s)',
           notify_url: process.env.ONLINE_SERVER_GATEWAY,
-          return_url: `https://uligpro.com/?id=${transaction_id}`,
+          return_url: `https://uligpro.com`,
           channels: 'ALL',
         }),
       });
+      console.log();
+
       if (response.ok) {
         return await response.json();
       } else {
@@ -350,12 +352,14 @@ export class EventsService {
       writeStream.end();
       //console.log(error);
       throw new Error(
-        'Error dans generation des tickets, contacter le service client SVP',
+        'Error dans generation des tickets ressayer, contacter le service client SVP',
       );
     }
   }
 
   async checkPayment(idTransaction: string) {
+    //console.log(idTransaction);
+
     try {
       const response = await fetch(
         `${process.env.CINETPAY_URL}/payment/check`,
@@ -434,7 +438,10 @@ export class EventsService {
         return { message: 'FAILLED' };
       }
     } catch (error) {
-      console.log(error);
+      //console.log(error);
+      throw new Error(
+        'Erreur server survenue, SVP informez le service client ',
+      );
     }
   }
 
@@ -531,7 +538,10 @@ export class EventsService {
       try {
         const checked = await this.prisma.ticket.findUnique({
           where: {
-            code,
+            code: code,
+            event: {
+              onSell: true,
+            },
           },
         });
 
@@ -548,6 +558,9 @@ export class EventsService {
           });
           return { status: true };
         } else {
+          await this.prisma.ticketDoublons.create({
+            data: checked,
+          });
           return {
             status: false,
             error: {
@@ -558,7 +571,9 @@ export class EventsService {
         }
       } catch (error) {
         console.log(error);
-        throw new Error("Le code n'existe pas");
+        throw new Error(
+          "Le code n'existe pas ou le ticket n'est plus utilisable",
+        );
       }
     }
   }
