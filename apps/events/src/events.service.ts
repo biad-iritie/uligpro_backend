@@ -507,7 +507,11 @@ export class EventsService {
               },
             },
           },
-          ticket_category: true,
+          ticket_category: {
+            include: {
+              ticket_categoryOnEvent: true,
+            },
+          },
         },
       });
       return { tickets };

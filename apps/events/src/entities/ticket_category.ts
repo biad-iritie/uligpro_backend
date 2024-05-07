@@ -11,5 +11,5 @@ export class Ticket_category {
   name: string;
 
   @Field(() => [Ticket_categoryOnEvent], { nullable: true })
-  Ticket_categoryOnEvent: Ticket_categoryOnEvent[];
+  ticket_categoryOnEvent: Ticket_categoryOnEvent[];
 }
