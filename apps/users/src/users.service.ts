@@ -250,6 +250,7 @@ export class UsersService {
 
     return { message: 'Logout successfully!' };
   }
+
   async comparePassword(
     password: string,
     hashedPassword: string,

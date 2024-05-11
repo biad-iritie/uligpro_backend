@@ -73,6 +73,8 @@ export class PaymentResponse {
   payment_url?: string;
   @Field(() => String)
   payment_token?: string;
+  @Field(() => String)
+  payment_id?: string;
 
   @Field(() => ErrorType, { nullable: true })
   error?: ErrorType;

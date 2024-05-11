@@ -225,7 +225,6 @@ export class EventsService {
           channels: 'ALL',
         }),
       });
-      console.log();
 
       if (response.ok) {
         return await response.json();
@@ -338,11 +337,15 @@ export class EventsService {
             timeout: 15000,
           },
         );
-        return {
+
+        const result = {
           code: initPayment.code,
           payment_url: initPayment.data.payment_url,
           payment_token: initPayment.data.payment_token,
+          payment_id: transaction_id,
         };
+        //console.log(result);
+        return result;
       } else {
         throw new Error('Svp ressayez plus tard, soucis au niveau du server !');
       }
@@ -397,7 +400,7 @@ export class EventsService {
           },
           data: {
             status: 'SUCCESS',
-            paidAt: result.data.payment_date,
+            paidAt: new Date(result.data.payment_date),
             method: result.data.payment_method,
             provider: result.data.operator_id,
             tickets: {
@@ -413,7 +416,8 @@ export class EventsService {
           },
         });
         return { message: 'SUCCESS' };
-      } else {
+      }
+      if (result.code === '627') {
         const tickets = await this.prisma.ticket.findMany({
           where: {
             transactionId: idTransaction,
@@ -436,9 +440,11 @@ export class EventsService {
           });
         }
         return { message: 'FAILLED' };
+      } else {
+        return { message: 'PENDING' };
       }
     } catch (error) {
-      //console.log(error);
+      console.log(error);
       throw new Error(
         'Erreur server survenue, SVP informez le service client ',
       );
