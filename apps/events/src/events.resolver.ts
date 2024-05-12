@@ -65,7 +65,7 @@ export class EventsResolver {
     return await this.eventsService.generateTickets(tickets, context);
   }
   @Mutation(() => BasicResponse)
-  @UseGuards(AuthGuard)
+  //@UseGuards(AuthGuard)
   async actionAfterPayment(
     @Args('idTransaction', { type: () => String }) idTransaction: string,
     /* @Args('transaction', { type: () => TransactionInput })

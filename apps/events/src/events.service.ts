@@ -221,7 +221,7 @@ export class EventsService {
           currency: 'XOF',
           description: 'Achat de ticket(s)',
           notify_url: process.env.ONLINE_SERVER_GATEWAY,
-          return_url: `https://uligpro.com`,
+          return_url: `https://uligpro.com/payment-done/id=${transaction_id}`,
           channels: 'ALL',
         }),
       });
@@ -378,8 +378,7 @@ export class EventsService {
           }),
         },
       );
-      //console.log(response);
-
+      //console.log(await response.json());
       if (response.ok) {
         return await response.json();
       }
@@ -390,7 +389,7 @@ export class EventsService {
   async actionAfterPayment(idTransaction: string) {
     try {
       const result = await this.checkPayment(idTransaction);
-      //console.log(result);
+      console.log(result);
 
       if (result.code === '00') {
         //good
