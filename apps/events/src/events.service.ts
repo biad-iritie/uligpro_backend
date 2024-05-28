@@ -221,7 +221,7 @@ export class EventsService {
           currency: 'XOF',
           description: 'Achat de ticket(s)',
           notify_url: process.env.ONLINE_SERVER_GATEWAY,
-          return_url: `https://uligpro.com/payment-done/id=${transaction_id}`,
+          return_url: `https://uligpro.com/payment-return`,
           channels: 'ALL',
         }),
       });
