@@ -109,6 +109,7 @@ export class AuthGuard implements CanActivate {
       req.user = user;
     } catch (error) {
       //console.log(error);
+      throw new UnauthorizedException('SVP connectez-vous à votre compte!');
     }
   }
 }

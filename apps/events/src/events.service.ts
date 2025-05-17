@@ -379,19 +379,20 @@ export class EventsService {
         },
       );
       //console.log(await response.json());
-      if (response.ok) {
-        return await response.json();
-      }
+      return await response.json();
     } catch (error) {
-      console.log(error);
+      //console.log(error);
+      throw new Error('Erreur server survenue, API cinetPay');
     }
   }
   async actionAfterPayment(idTransaction: string) {
     try {
       const result = await this.checkPayment(idTransaction);
-      console.log(result);
 
-      if (result.code === '00') {
+      if (result?.code === '404') {
+        throw new Error("le numero de la transaction n'exite pas");
+      }
+      if (result?.code === '00') {
         //good
         await this.prisma.transaction.update({
           where: {
@@ -416,7 +417,7 @@ export class EventsService {
         });
         return { message: 'SUCCESS' };
       }
-      if (result.code === '627') {
+      if (result?.code === '627') {
         const tickets = await this.prisma.ticket.findMany({
           where: {
             transactionId: idTransaction,
@@ -443,10 +444,8 @@ export class EventsService {
         return { message: 'PENDING' };
       }
     } catch (error) {
-      console.log(error);
-      throw new Error(
-        'Erreur server survenue, SVP informez le service client ',
-      );
+      //console.log(error.message);
+      throw new Error(error.message);
     }
   }
 
@@ -519,9 +518,10 @@ export class EventsService {
           },
         },
       });
+
       return { tickets };
     } catch (error) {
-      console.log(error);
+      //console.log(error);
 
       return {
         error: {
@@ -581,7 +581,7 @@ export class EventsService {
           };
         }
       } catch (error) {
-        console.log(error);
+        //console.log(error);
         throw new Error(
           "Le code n'existe pas ou le ticket n'est plus utilisable",
         );
