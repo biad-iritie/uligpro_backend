@@ -1,1 +1,1 @@
-web: npm run start:sequence:prod
+web: pnpm run start:sequence:prod
