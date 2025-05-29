@@ -12,6 +12,8 @@ async function bootstrap() {
   app.setBaseViewsDir(join(__dirname, '..', 'gateway/email-templates'));
   app.setViewEngine('ejs');
 
-  await app.listen(4001);
+  const port = process.env.PORT || 4001;
+  await app.listen(port);
+  console.log(`Users service is running on port ${port}`);
 }
 bootstrap();

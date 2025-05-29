@@ -1,6 +1,7 @@
 {
   "name": "gateway",
   "version": "0.0.1",
+  "packageManager": "pnpm@8.15.4",
   "description": "",
   "author": "",
   "private": true,

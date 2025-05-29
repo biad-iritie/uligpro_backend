@@ -1,1 +1,1 @@
-web: pnpm install && pnpm run build && pnpm run start:sequence:prod
+web: export NODE_ENV=production && pnpm install && pnpm run build && echo "Starting production server..." && PORT=$PORT pnpm run start:sequence:prod

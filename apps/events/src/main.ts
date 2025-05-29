@@ -7,6 +7,9 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(EventsModule);
   app.useGlobalPipes(new ValidationPipe());
   app.enableCors();
-  await app.listen(4002);
+
+  const port = process.env.PORT || 4002;
+  await app.listen(port);
+  console.log(`Events service is running on port ${port}`);
 }
 bootstrap();
