@@ -1,1 +1,1 @@
-web: export NODE_ENV=production && pnpm install && pnpm run build && echo "Starting production server..." && PORT=$PORT pnpm run start:sequence:prod
+web: export NODE_ENV=production && export USERS_PORT=$PORT && export EVENTS_PORT=$((PORT+1)) && export GATEWAY_PORT=$((PORT+2)) && pnpm install && pnpm run build && echo "Starting production server..." && PORT=$PORT pnpm run start:sequence:prod
