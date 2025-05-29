@@ -1,0 +1,119 @@
+---
+title: Uligpro Architecture Diagram
+---
+graph TB
+    %% Client Layer
+    subgraph Client["Client Applications"]
+        WebApp["Web Application"]
+        MobileApp["Mobile Application"]
+    end
+
+    %% API Gateway Layer
+    subgraph Gateway["API Gateway (Port 4000)"]
+        ApolloGateway["Apollo Gateway"]
+        Federation["Apollo Federation"]
+        GatewayModule["Gateway Module"]
+        GatewayResolver["Gateway Resolver"]
+    end
+
+    %% Microservices Layer
+    subgraph Microservices["Microservices"]
+        %% Users Service
+        subgraph UsersService["Users Service (Port 4001)"]
+            UsersModule["Users Module"]
+            UsersResolver["Users Resolver"]
+            UsersServiceCore["Users Service Core"]
+            
+            subgraph UsersComponents["Users Components"]
+                UserDTO["User DTOs"]
+                UserEntities["User Entities"]
+                UserTypes["User Types"]
+                UserGuards["Auth Guards"]
+                UserUtils["Utilities"]
+            end
+
+            subgraph UserFeatures["User Features"]
+                Auth["Authentication"]
+                EmailService["Email Service"]
+                RoleBased["Role Management"]
+                Profile["User Profile"]
+            end
+        end
+
+        %% Events Service
+        subgraph EventsService["Events Service (Port 4002)"]
+            EventsModule["Events Module"]
+            EventsResolver["Events Resolver"]
+            EventsServiceCore["Events Service Core"]
+            
+            subgraph EventsComponents["Events Components"]
+                EventDTO["Event DTOs"]
+                EventEntities["Event Entities"]
+                EventTypes["Event Types"]
+                EventUtils["Utilities"]
+            end
+
+            subgraph EventFeatures["Event Features"]
+                EventMgmt["Event Management"]
+                VenueMgmt["Venue Management"]
+                TeamMgmt["Team Management"]
+                TicketMgmt["Ticket Management"]
+                MatchMgmt["Match Management"]
+            end
+        end
+    end
+
+    %% Database Layer
+    subgraph Database["Database Layer"]
+        Prisma["Prisma ORM"]
+        PostgreSQL["PostgreSQL Database"]
+        
+        subgraph Models["Database Models"]
+            UserModel["User Model"]
+            RoleModel["Role Model"]
+            EventModel["Event Model"]
+            VenueModel["Venue Model"]
+            TeamModel["Team Model"]
+            TicketModel["Ticket Model"]
+            TransactionModel["Transaction Model"]
+        end
+    end
+
+    %% External Services
+    subgraph External["External Services"]
+        SendGrid["SendGrid"]
+        JWT["JWT Auth"]
+        PaymentGateway["Payment Gateway"]
+    end
+
+    %% Connections
+    WebApp --> ApolloGateway
+    MobileApp --> ApolloGateway
+    ApolloGateway --> Federation
+    Federation --> UsersResolver
+    Federation --> EventsResolver
+    UsersResolver --> UsersServiceCore
+    UsersServiceCore --> UserFeatures
+    UsersServiceCore --> UsersComponents
+    UsersServiceCore --> Prisma
+    UserFeatures --> SendGrid
+    UserFeatures --> JWT
+    EventsResolver --> EventsServiceCore
+    EventsServiceCore --> EventFeatures
+    EventsServiceCore --> EventsComponents
+    EventsServiceCore --> Prisma
+    EventFeatures --> PaymentGateway
+    Prisma --> PostgreSQL
+    Prisma --> Models
+
+    %% Styling
+    classDef service fill:#f9f,stroke:#333,stroke-width:2px
+    classDef database fill:#bbf,stroke:#333,stroke-width:2px
+    classDef external fill:#bfb,stroke:#333,stroke-width:2px
+    classDef client fill:#fbb,stroke:#333,stroke-width:2px
+
+    class UsersService,EventsService service
+    class Database database
+    class External external
+    class Client client
+```

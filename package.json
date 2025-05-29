@@ -9,6 +9,9 @@
     "https://api.hub2.io",
     "https://api.elasticemail.com"
   ],
+  "engines": {
+  "node": ">=14.0.0"
+},
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",

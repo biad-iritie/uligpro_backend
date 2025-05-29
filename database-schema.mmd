@@ -1,0 +1,174 @@
+---
+title: Uligpro Database Schema
+---
+erDiagram
+    %% Core User Management
+    User {
+        string _id PK "UUID"
+        string name "Full name"
+        string email UK "Unique email"
+        string tel UK "Phone number"
+        string password "Hashed"
+        boolean confirmed "Email verification"
+        datetime createdAt "Registration date"
+        string roleId FK "User role"
+        string status "Active/Inactive"
+        string lastLogin "Last login date"
+    }
+
+    Role {
+        string _id PK "UUID"
+        string name UK "Role name"
+        string description "Role description"
+        string permissions "Access rights"
+    }
+
+    %% Event Management
+    Venue {
+        string _id PK "UUID"
+        string name UK "Venue name"
+        string address "Full address"
+        string city "City"
+        string capacity "Max capacity"
+        string description "Venue details"
+        string status "Active/Inactive"
+    }
+
+    Event {
+        string _id PK "UUID"
+        string name "Event name"
+        datetime date "Event date"
+        datetime createdAt "Creation date"
+        datetime updatedAt "Last update"
+        string evenueId FK "Venue reference"
+        boolean onSell "Ticket sales status"
+        boolean display "Public visibility"
+        string description "Event details"
+        string status "Active/Cancelled"
+        string type "Event type"
+        string organizer "Event organizer"
+    }
+
+    %% Ticket Management
+    Ticket_category {
+        string _id PK "UUID"
+        string name UK "Category name"
+        string description "Category details"
+        string color "Display color"
+        string status "Active/Inactive"
+    }
+
+    Ticket_categoryOnEvent {
+        string eventId PK,FK "Event reference"
+        string ticket_categoryId PK,FK "Category reference"
+        int price "Ticket price"
+        int capacity "Max tickets"
+        int ticket_sold "Sold count"
+        string status "Sales status"
+        datetime startSale "Sales start"
+        datetime endSale "Sales end"
+    }
+
+    %% Team and Match Management
+    Team {
+        string _id PK "UUID"
+        string name "Team name"
+        string logo "Team logo URL"
+        string university "University name"
+        string city "Team city"
+        string status "Active/Inactive"
+        string description "Team details"
+    }
+
+    Match {
+        string time "Match time"
+        string team1Id PK,FK "Home team"
+        string team2Id PK,FK "Away team"
+        int goal1 "Home goals"
+        int goal2 "Away goals"
+        string teamIdWinner FK "Winning team"
+        string eventId PK,FK "Event reference"
+        datetime createdAt "Creation date"
+        string status "Scheduled/Live/Ended"
+        string round "Match round"
+        string venue "Match venue"
+    }
+
+    %% Transaction and Payment
+    Transaction {
+        string _id PK "UUID"
+        string intendId UK "Payment intent"
+        int amount "Base amount"
+        int amountWithFee "Total with fees"
+        string provider "Payment provider"
+        string debitNumber "Customer number"
+        string currency "XOF default"
+        string country "CI default"
+        string method "Payment method"
+        datetime intendCreatedAt "Creation time"
+        datetime paidAt "Payment time"
+        string status "Pending/Success/Failed"
+        string description "Transaction details"
+        string customerInfo "Customer data"
+    }
+
+    %% Ticket System
+    Ticket {
+        string userId PK,FK "Owner"
+        string eventId PK,FK "Event"
+        string transactionId PK,FK "Purchase"
+        string code UK "Unique code"
+        string ticket_categoryId FK "Category"
+        boolean scanned "Scan status"
+        datetime scannedAt "Scan time"
+        datetime createdAt "Issue date"
+        boolean valid "Validity"
+        string scannedByUserId FK "Scanner"
+        enum nature "PHYSICAL/ONLINE"
+        string status "Active/Used/Cancelled"
+        string seatNumber "Physical seat"
+        string qrCode "QR code data"
+    }
+
+    %% Relationships with descriptions
+    User ||--o{ Ticket : "owns tickets"
+    User ||--o{ Ticket : "scans tickets"
+    User }|--|| Role : "assigned to"
+    Event ||--o{ Match : "schedules"
+    Event ||--o{ Ticket : "issues"
+    Event }|--|| Venue : "hosted at"
+    Event ||--o{ Ticket_categoryOnEvent : "offers"
+    Ticket_category ||--o{ Ticket_categoryOnEvent : "priced in"
+    Ticket_category ||--o{ Ticket : "categorizes"
+    Team ||--o{ Match : "plays home"
+    Team ||--o{ Match : "plays away"
+    Team ||--o{ Match : "wins"
+    Transaction ||--o{ Ticket : "purchases"
+    Ticket }|--|| Ticket_category : "belongs to"
+    Ticket }|--|| Event : "valid for"
+    Ticket }|--|| User : "owned by"
+    Ticket }|--|| User : "scanned by"
+    Ticket }|--|| Transaction : "purchased through"
+
+    %% Enhanced Styling
+    classDef user fill:#f9f,stroke:#333,stroke-width:2px
+    classDef event fill:#bbf,stroke:#333,stroke-width:2px
+    classDef ticket fill:#bfb,stroke:#333,stroke-width:2px
+    classDef transaction fill:#fbb,stroke:#333,stroke-width:2px
+    classDef team fill:#fbf,stroke:#333,stroke-width:2px
+    classDef relationship fill:#ddd,stroke:#333,stroke-width:1px
+
+    %% Apply styles
+    class User,Role user
+    class Event,Venue,Ticket_category,Ticket_categoryOnEvent event
+    class Ticket,Ticket_category ticket
+    class Transaction transaction
+    class Team,Match team
+    class relationship relationship
+
+    %% Add a note about the system
+    note for User "Core user management system with role-based access"
+    note for Event "Event management with venue and ticket categories"
+    note for Ticket "Ticket system with physical and online options"
+    note for Transaction "Payment processing with multiple providers"
+    note for Team "Team management for sports events" 
