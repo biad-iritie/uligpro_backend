@@ -22,7 +22,7 @@
     "start:events": "nest start events --watch",
     "start:gateway": "nest start gateway --watch",
     "start:sequence": "pnpm start:users & wait-on tcp:4001 && pnpm start:events & wait-on tcp:4002 && pnpm start:gateway",
-    "start:sequence:prod": "nest start users & wait-on tcp:4001 && nest start events & wait-on tcp:4002 && nest start gateway",
+    "start:sequence:prod": "node dist/apps/users/main & wait-on tcp:4001 && node dist/apps/events/main & wait-on tcp:4002 && node dist/apps/gateway/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -55,10 +55,10 @@
     "prisma": "^5.11.0",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",
-    "wait-on": "^8.0.3"
+    "wait-on": "^8.0.3",
+    "@nestjs/cli": "^10.0.0"
   },
   "devDependencies": {
-    "@nestjs/cli": "^10.0.0",
     "@nestjs/schematics": "^10.0.0",
     "@nestjs/testing": "^10.0.0",
     "@types/express": "^4.17.17",

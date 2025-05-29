@@ -1,1 +1,1 @@
-web: pnpm run start:sequence:prod
+web: pnpm install && pnpm run build && pnpm run start:sequence:prod
