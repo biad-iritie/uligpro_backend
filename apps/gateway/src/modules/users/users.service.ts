@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import {
   ActivationDto,
   CreateRegularUserInput,
@@ -7,12 +11,15 @@ import {
 } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
 import { Response } from 'express';
-import { PrismaService } from '../../../prisma/prisma.service';
+import { PrismaService } from 'prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { JsonWebTokenError, JwtService, JwtVerifyOptions } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { EmailService } from './email/email.service';
-import { SendToken } from './utlis/sendToken';
+import { SendToken } from './utils/sendToken';
+import { User } from './entities/user.entity';
+import { LoginUserInput } from './dto/login-user.input';
+import { Role } from './entities/role.entity';
 const sgMail = require('@sendgrid/mail');
 interface userData {
   name: string;
