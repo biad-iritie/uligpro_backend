@@ -11,7 +11,7 @@ import {
 } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
 import { Response } from 'express';
-import { PrismaService } from 'prisma/prisma.service';
+import { PrismaService } from '../../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { JsonWebTokenError, JwtService, JwtVerifyOptions } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';

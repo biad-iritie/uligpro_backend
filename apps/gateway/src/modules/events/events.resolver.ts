@@ -88,7 +88,7 @@ export class EventsResolver {
   @Query(() => String, { name: 'getQRcode' })
   async generateQRCode(
     @Args('code', { type: () => String }) code: string,
-  ): Promise<String> {
+  ): Promise<string> {
     return await this.eventsService.generateQRCode(code);
   }
 
