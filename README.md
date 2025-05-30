@@ -1,28 +1,59 @@
-# Uligpro Backend Gateway
+# Uligpro Backend
 
-A microservices-based backend system built with NestJS, GraphQL, and Prisma, designed to handle event management, user management, and ticket processing.
+A modern, scalable monolithic backend system built with NestJS, Apollo GraphQL, and Prisma, designed to handle event management, user management, and ticket processing for sports events.
 
-## Project Structure
+## Architecture Overview
 
-The project is organized as a monorepo with three main services:
+The system follows a monolithic architecture with the following components:
 
-- **Gateway Service** (Port 4000): API Gateway that combines all services
-- **Users Service** (Port 4001): Handles user management and authentication
-- **Events Service** (Port 4002): Manages events, venues, and ticket categories
+### Client Layer
+- Web Application
+- Mobile Application
+
+### Backend Layer (Port 4000)
+- Single NestJS Application
+- Apollo GraphQL Server
+- Unified API Access
+- Core Components:
+  - Users Module
+  - Events Module
+  - Authentication and Authorization
+  - Email Service Integration
+
+### Database Layer
+- PostgreSQL Database
+- Prisma ORM
+- Models:
+  - User and Role Models
+  - Event and Venue Models
+  - Team and Ticket Models
+  - Transaction Model
+
+### External Services Integration
+- SendGrid for Email Services
+- JWT for Authentication
+- Payment Gateway Integration
 
 ## Tech Stack
 
-- **Framework**: NestJS
-- **API**: GraphQL with Apollo Federation
-- **Database**: PostgreSQL with Prisma ORM
+- **Framework**: NestJS v10
+- **API**: 
+  - GraphQL with Apollo Server
+  - Apollo Client v2.7
+- **Database**: 
+  - PostgreSQL
+  - Prisma ORM v5.11
 - **Authentication**: JWT
-- **Email**: SendGrid & Nodemailer
-- **Package Manager**: PNPM
+- **Email**: 
+  - SendGrid
+  - Nodemailer
+- **Package Manager**: PNPM v9.10.0
+- **Language**: TypeScript v5.1
 
 ## Prerequisites
 
-- Node.js (v16 or higher)
-- PNPM (v8 or higher)
+- Node.js (>=14.0.0)
+- PNPM (v9.10.0)
 - PostgreSQL (v14 or higher)
 - Docker (optional, for containerized database)
 
@@ -42,10 +73,16 @@ JWT_EXPIRATION=24h
 SENDGRID_API_KEY=your_sendgrid_api_key
 EMAIL_FROM=your_email@domain.com
 
-# Service Ports
-GATEWAY_PORT=4000
-USERS_PORT=4001
-EVENTS_PORT=4002
+# Application
+PORT=4000
+
+# Security
+ALGORITHM=your_algorithm
+SECRET_KEY_PROTECT=your_secret_key
+IV=your_iv
+
+# Elastic Email (if used)
+ELASTIC_EMAIL_API_KEY=your_elastic_email_api_key
 ```
 
 ## Installation
@@ -86,6 +123,23 @@ pnpm prisma migrate dev
 
 ## Running the Project
 
+### Development Mode
+
+```bash
+# Start the application in development mode
+pnpm start:dev
+```
+
+### Production Mode
+
+```bash
+# Build the project
+pnpm build
+
+# Start in production mode
+pnpm start:prod
+```
+
 ### Database Management
 
 ```bash
@@ -99,96 +153,91 @@ pnpm prisma migrate dev
 pnpm prisma migrate reset
 ```
 
-### Running Services
-
-The services should be started in sequence:
-
-```bash
-# Development mode (starts all services in sequence)
-pnpm start:sequence
-
-# Production mode
-pnpm start:sequence:prod
-```
-
-Individual services can be started separately:
-
-```bash
-# Users service
-pnpm start:users
-
-# Events service
-pnpm start:events
-
-# Gateway service
-pnpm start:gateway
-```
-
 ## API Documentation
-
-Once the services are running, you can access:
 
 - GraphQL Playground: http://localhost:4000/graphql
 - Prisma Studio: http://localhost:5555
-
-## Project Features
-
-- **User Management**
-  - User registration and authentication
-  - Role-based access control
-  - Email verification
-
-- **Event Management**
-  - Event creation and management
-  - Venue management
-  - Team management
-  - Match scheduling
-
-- **Ticket System**
-  - Ticket categories and pricing
-  - Online ticket purchase
-  - Physical ticket generation
-  - Ticket validation and scanning
-
-- **Payment Processing**
-  - Secure payment integration
-  - Transaction management
-  - Payment status tracking
-
-## Development
-
-```bash
-# Linting
-pnpm lint
-
-# Testing
-pnpm test
-pnpm test:e2e
-pnpm test:cov
-
-# Build
-pnpm build
-```
 
 ## Project Structure
 
 ```
 ├── apps/
-│   ├── gateway/     # API Gateway service
-│   ├── users/       # User management service
-│   └── events/      # Event management service
+│   └── gateway/           # Main application
+│       ├── src/
+│       │   ├── modules/   # Feature modules
+│       │   │   ├── users/ # User management
+│       │   │   └── events/# Event management
+│       │   ├── app.module.ts
+│       │   └── main.ts
 ├── prisma/
-│   ├── schema.prisma
-│   └── migrations/
-├── email-templates/ # Email templates
-└── logs/           # Application logs
+│   ├── schema.prisma     # Database schema
+│   └── migrations/       # Database migrations
+├── email-templates/      # Email templates
+├── logs/                # Application logs
+├── dist/               # Compiled output
+└── node_modules/       # Dependencies
 ```
+
+## Development
+
+```bash
+# Code formatting
+pnpm format
+
+# Linting
+pnpm lint
+
+# Testing
+pnpm test              # Unit tests
+pnpm test:e2e         # End-to-end tests
+pnpm test:cov         # Test coverage
+pnpm test:debug       # Debug tests
+
+# Build
+pnpm build
+```
+
+## Key Features
+
+### User Management
+- Secure authentication with JWT
+- Role-based access control
+- Email verification system
+- User profile management
+
+### Event Management
+- Comprehensive event CRUD operations
+- Venue and team management
+- Match scheduling and management
+- Ticket category and pricing management
+
+### Ticket System
+- Online ticket purchase flow
+- Physical ticket generation
+- QR code-based validation
+- Transaction tracking
+
+### Security
+- JWT-based authentication
+- Role-based authorization
+- Secure password handling
+- API rate limiting
+- Data encryption for sensitive information
+
+## Deployment
+
+The application is configured for deployment on Heroku with the following considerations:
+
+1. The `Procfile` specifies the production start command
+2. Environment variables should be configured in the deployment platform
+3. Database migrations run automatically on deployment
+4. The application uses the `PORT` environment variable provided by the platform
 
 ## Contributing
 
-1. Create a new branch for your feature
+1. Create a feature branch from `main`
 2. Make your changes
-3. Run tests and linting
+3. Run tests and ensure linting passes
 4. Submit a pull request
 
 ## License

@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { randomInt } from 'crypto';
 import { join } from 'path';
 
-import { PrismaService } from '../../../prisma/prisma.service';
+import { PrismaService } from 'prisma/prisma.service';
 import {
   buyTicketsEventInput,
   CreateEventInput,
@@ -11,6 +11,7 @@ import {
 } from './dto/create-event.input';
 import { UpdateEventInput } from './dto/update-event.input';
 import { Protect } from './utils/protect';
+import { Event } from './entities/event.entity';
 
 interface storeTicket {
   userId: string;

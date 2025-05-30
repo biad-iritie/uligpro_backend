@@ -25,7 +25,7 @@ export class User {
   createdAt: Date;
 
   @Field()
-  confirmed: Boolean;
+  confirmed: boolean;
 
   @Field()
   roleId?: string;

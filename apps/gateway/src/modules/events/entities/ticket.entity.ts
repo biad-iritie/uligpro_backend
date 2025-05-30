@@ -1,6 +1,6 @@
 import { Directive, Field, ID, ObjectType } from '@nestjs/graphql';
 import { Event } from './event.entity';
-import { User } from './user.entity';
+import { User } from '../../users/entities/user.entity';
 import { Ticket_category } from './ticket_category';
 import { Transaction } from './transaction.entity';
 @ObjectType()

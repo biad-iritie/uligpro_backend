@@ -1,16 +1,10 @@
-import { HttpCode, HttpStatus, Res, UseGuards } from '@nestjs/common';
+import { UseGuards } from '@nestjs/common';
 import { Resolver, Query, Mutation, Args, Int, Context } from '@nestjs/graphql';
-import { AuthGuard } from 'apps/users/src/guard/auth.guard';
-import { timeStamp } from 'console';
+import { AuthGuard } from '../users/guard/auth.guard';
 
-import {
-  buyTicketsEventInput,
-  Hub2DataFormat,
-  TransactionInput,
-} from './dto/create-event.input';
+import { buyTicketsEventInput } from './dto/create-event.input';
 import { UpdateEventInput } from './dto/update-event.input';
 import { Event } from './entities/event.entity';
-import { Ticket } from './entities/ticket.entity';
 
 import { EventsService } from './events.service';
 import {
