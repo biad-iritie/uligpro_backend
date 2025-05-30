@@ -95,24 +95,3 @@ export class Hub2Data {
   @Field(() => [Fee])
   fees?: Fee[];
 }
-
-@InputType()
-export class Hub2DataFormat {
-  @Field(() => String)
-  owner: String;
-
-  @Field(() => String)
-  type: String;
-
-  @Field(() => Hub2Data)
-  data: Hub2Data;
-
-  @Field(() => Boolean)
-  test: boolean;
-
-  @Field(() => String)
-  id: String;
-
-  @Field(() => Date)
-  createdAt: string;
-}
