@@ -1,6 +1,6 @@
 build:
   packages:
-    - pnpm@9.10.0
+    - nodejs
   scripts:
     - pnpm install
     - pnpm prisma generate --schema=./apps/gateway/src/prisma/schema.prisma

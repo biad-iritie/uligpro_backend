@@ -1,3 +1,1 @@
-nodejs
-npm
-pnpm 
+# This file is intentionally empty as we're using the Node.js buildpack 
