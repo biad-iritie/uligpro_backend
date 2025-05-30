@@ -1,1 +1,1 @@
-web: pnpm install && pnpm prisma generate && pnpm start:prod
+web: pnpm install && pnpm prisma generate --schema=./apps/gateway/src/prisma/schema.prisma && pnpm start:prod
