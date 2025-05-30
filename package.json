@@ -10,8 +10,9 @@
     "https://api.elasticemail.com"
   ],
   "engines": {
-  "node": ">=14.0.0"
-},
+    "node": "20.18.0",
+    "packageManager": "pnpm@9.10.0"
+  },
   "scripts": {
     "build": "prisma generate && nest build gateway",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
