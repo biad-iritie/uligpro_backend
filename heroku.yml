@@ -1,0 +1,9 @@
+build:
+  packages:
+    - pnpm@9.10.0
+  scripts:
+    - pnpm install
+    - pnpm prisma generate
+    - pnpm build
+run:
+  web: pnpm start:prod 

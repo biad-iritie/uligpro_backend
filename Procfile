@@ -1,1 +1,1 @@
-web: pnpm run start:prod
+web: pnpm install && pnpm prisma generate && pnpm start:prod
