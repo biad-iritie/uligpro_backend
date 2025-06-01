@@ -88,22 +88,34 @@ model Match {
   goal2        Int
   teamIdWinner String?
   eventId      String
-  event        Event   @relation(fields: [eventId], references: [id])
-  team1        Team    @relation("team home", fields: [team1Id], references: [id])
-  team2        Team    @relation("team away", fields: [team2Id], references: [id])
-  teamWinner   Team?   @relation(fields: [teamIdWinner], references: [id])
+  createdAt    DateTime @default(now())
+  event        Event    @relation(fields: [eventId], references: [id])
+  team1        Team     @relation("team home", fields: [team1Id], references: [id])
+  team2        Team     @relation("team away", fields: [team2Id], references: [id])
+  teamWinner   Team?    @relation(fields: [teamIdWinner], references: [id])
 
   @@id([team1Id, team2Id, eventId])
 }
 
 model Transaction {
-  id          String   @id @default(uuid()) @map("_id")
-  code        String   @unique
-  amount      Int
-  debitNumber String
-  way         String
-  didAt       DateTime
-  tickets     Ticket[]
+  id              String    @id @default(uuid()) @map("_id")
+  intendId        String?   @unique
+  amount          Int
+  amountWithFee   Int?
+  provider        String?
+  debitNumber     String?
+  currency        String    @default("XOF")
+  country         String    @default("CI")
+  method          String?
+  intendCreatedAt DateTime  @default(now())
+  paidAt          DateTime?
+  status          String
+  tickets         Ticket[]
+}
+
+enum ticketNature {
+  PHYSICAL
+  ONLINE
 }
 
 model Ticket {
@@ -115,7 +127,9 @@ model Ticket {
   scanned           Boolean?        @default(false)
   scannedAt         DateTime?
   createdAt         DateTime?       @default(now())
+  valid             Boolean         @default(false)
   scannedByUserId   String?
+  nature            ticketNature    @default(ONLINE)
   event             Event           @relation(fields: [eventId], references: [id])
   scannedByUser     User?           @relation("Scanner", fields: [scannedByUserId], references: [id])
   ticket_category   Ticket_category @relation(fields: [ticket_categoryId], references: [id])
@@ -123,4 +137,19 @@ model Ticket {
   user              User            @relation(fields: [userId], references: [id])
 
   @@id([eventId, transactionId, code])
+}
+
+model TicketDoublons {
+  id                Int          @id @default(autoincrement())
+  userId            String
+  eventId           String
+  transactionId     String
+  code              String
+  ticket_categoryId String
+  scanned           Boolean
+  scannedAt         DateTime
+  createdAt         DateTime
+  valid             Boolean
+  scannedByUserId   String
+  nature            ticketNature
 }
