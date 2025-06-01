@@ -92,7 +92,7 @@ ELASTIC_EMAIL_API_KEY=your_elastic_email_api_key
 pnpm install
 
 # Generate Prisma client
-pnpm prisma generate
+pnpm prisma generate --schema=./apps/gateway/src/prisma/schema.prisma
 ```
 
 ## Database Setup
