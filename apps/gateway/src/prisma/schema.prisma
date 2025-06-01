@@ -81,7 +81,7 @@ model Team {
 }
 
 model Match {
-  time         String
+  time         DateTime
   team1Id      String
   team2Id      String
   goal1        Int
